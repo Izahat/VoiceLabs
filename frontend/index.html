@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VoiceLabs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/tabs.css">
+  <link rel="stylesheet" href="css/card.css">
+  <link rel="stylesheet" href="css/forms.css">
+  <link rel="stylesheet" href="css/progress.css">
+  <link rel="stylesheet" href="css/modal.css">
+  <link rel="stylesheet" href="css/recorder.css">
+  <link rel="stylesheet" href="css/utilities.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- HEADER -->
+    <header class="header">
+      <a href="#" class="header__logo">
+        <div class="header__logo-icon">🎙</div>
+        <span class="header__logo-text">VoiceLabs</span>
+      </a>
+      <div class="header__actions">
+        <button id="btn-theme" class="icon-btn" title="Toggle theme" data-theme-icon>🌙</button>
+        <button id="btn-settings" class="icon-btn" title="Settings">⚙</button>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="tabs">
+        <button class="tab active" data-tab="design">
+          <span class="tab-icon">🎤</span>
+          <span data-i18n="tabs.voiceDesign">Voice Design</span>
+        </button>
+        <button class="tab" data-tab="cloning">
+          <span class="tab-icon">🔊</span>
+          <span data-i18n="tabs.voiceCloning">Voice Cloning</span>
+        </button>
+      </div>
+
+      <!-- VOICE DESIGN TAB -->
+      <div id="tab-design" class="tab-content active">
+
+        <div class="card">
+          <div class="card__title">
+            <span class="card__title-icon">📝</span>
+            <span data-i18n="voiceDesign.enterText">Enter Text</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="vd-language" data-i18n="voiceCloning.textLanguage">Text Language</label>
+              <select id="vd-language">
+                <option value="" data-i18n="loadingLangs">Loading languages...</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <textarea id="vd-text" class="text-input" rows="4" placeholder="Enter text to generate speech..." data-i18n-placeholder="voiceDesign.enterTextPlaceholder"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__title">
+            <span class="card__title-icon">🎤</span>
+            <span data-i18n="voiceDesignTitle">Voice Design Parameters</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="gender" data-i18n="gender">Gender</label>
+              <select id="gender">
+                <option value="" data-i18n="notSpecified">Not specified</option>
+                <option value="male" data-i18n="male">Male</option>
+                <option value="female" data-i18n="female">Female</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="age" data-i18n="age">Age</label>
+              <select id="age">
+                <option value="" data-i18n="notSpecified">Not specified</option>
+                <option value="child" data-i18n="child">Child</option>
+                <option value="teenager" data-i18n="teenager">Teenager</option>
+                <option value="young adult" data-i18n="youngAdult">Young Adult</option>
+                <option value="middle-aged" data-i18n="middleAged">Middle Aged</option>
+                <option value="elderly" data-i18n="elderly">Elderly</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="pitch" data-i18n="pitch">Pitch</label>
+              <select id="pitch">
+                <option value="" data-i18n="notSpecified">Not specified</option>
+                <option value="very low pitch" data-i18n="veryLow">Very Low</option>
+                <option value="low pitch" data-i18n="low">Low</option>
+                <option value="moderate pitch" data-i18n="moderate">Moderate</option>
+                <option value="high pitch" data-i18n="high">High</option>
+                <option value="very high pitch" data-i18n="veryHigh">Very High</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="style" data-i18n="style">Style</label>
+              <select id="style">
+                <option value="" data-i18n="notSpecified">Not specified</option>
+                <option value="whisper" data-i18n="whisper">Whisper</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="accent" data-i18n="accent">Accent</label>
+            <select id="accent">
+              <option value="" data-i18n="notSpecified">Not specified</option>
+              <option value="american accent" data-i18n="american">American</option>
+              <option value="british accent" data-i18n="british">British</option>
+              <option value="australian accent" data-i18n="australian">Australian</option>
+              <option value="canadian accent" data-i18n="canadian">Canadian</option>
+              <option value="indian accent" data-i18n="indian">Indian</option>
+              <option value="chinese accent" data-i18n="chinese">Chinese</option>
+              <option value="korean accent" data-i18n="korean">Korean</option>
+              <option value="japanese accent" data-i18n="japanese">Japanese</option>
+              <option value="portuguese accent" data-i18n="portuguese">Portuguese</option>
+              <option value="russian accent" data-i18n="russian">Russian</option>
+            </select>
+          </div>
+        </div>
+
+        <button id="start-dubbing-btn" class="btn btn--primary" disabled>
+          <span>▶</span>
+          <span data-i18n="voiceDesign.generateBtn">Generate Audio</span>
+        </button>
+        <div id="design-error" class="error-msg hidden"></div>
+
+        <!-- Voice Design Audio Result -->
+        <div id="vd-result-section" class="card hidden">
+          <div class="card__title">
+            <span class="card__title-icon">✅</span>
+            <span data-i18n="voiceCloning.audioReady">Audio Ready</span>
+          </div>
+          <audio id="vd-result-audio" class="result-audio" controls></audio>
+          <div class="result-actions">
+            <button id="vd-download-btn" class="btn btn--primary">
+              <span>⬇</span>
+              <span data-i18n="voiceCloning.downloadAudio">Download Audio</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VOICE CLONING TAB -->
+      <div id="tab-cloning" class="tab-content">
+
+        <div class="card">
+          <div class="card__title">
+            <span class="card__title-icon">🎙</span>
+            <span data-i18n="uploadRefForClone">Upload Audio or Video for Cloning</span>
+          </div>
+          <div id="ref-audio-dropzone" class="dropzone">
+            <div class="dropzone__icon">🎙</div>
+            <p class="dropzone__text" data-i18n="dragDropRefClone">Drag & drop audio or video file for voice cloning</p>
+            <div class="dropzone__formats">
+              <span class="dropzone__format-tag dropzone__format-tag--audio">🎵 Audio</span>
+              <span class="dropzone__format-tag dropzone__format-tag--video">🎬 Video</span>
+            </div>
+            <p class="dropzone__hint" data-i18n="refCloneHint">Audio: WAV, MP3 — Video: MP4, MOV, AVI, MKV, WebM</p>
+            <div id="ref-audio-file-info" class="dropzone__file hidden">
+              <div class="dropzone__file-icon">🎙</div>
+              <span class="dropzone__file-name" id="ref-audio-filename"></span>
+              <span class="dropzone__file-size" id="ref-audio-filesize"></span>
+              <button class="dropzone__file-remove" id="ref-audio-remove">×</button>
+            </div>
+          </div>
+          <input type="file" id="ref-audio-input" accept="audio/*,video/*" class="hidden">
+          <div class="record-section">
+            <div class="record-divider">
+              <span>or hold to record</span>
+            </div>
+            <div class="push-to-talk">
+              <canvas id="waveform-canvas" class="waveform-canvas"></canvas>
+              <button id="record-audio-btn" class="push-to-talk__btn">
+                <svg class="push-to-talk__icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                  <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                </svg>
+                <span class="push-to-talk__text" data-i18n="voiceCloning.holdToRecord">Hold to Record</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__title">
+            <span class="card__title-icon">📝</span>
+            <span data-i18n="voiceCloning.textMode">Text</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="text-language" data-i18n="voiceCloning.textLanguage">Text Language</label>
+              <select id="text-language">
+                <option value="" data-i18n="loadingLangs">Loading languages...</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <textarea id="synthesize-text" class="text-input" rows="4" placeholder="Enter text to synthesize..." data-i18n-placeholder="voiceCloning.enterText"></textarea>
+          </div>
+          <button id="clone-voice-btn" class="btn btn--primary" disabled>
+            <span>🎙</span>
+            <span data-i18n="voiceCloning.synthesizeBtn">Synthesize</span>
+          </button>
+          <div id="clone-voice-error" class="error-msg hidden"></div>
+        </div>
+
+        <!-- Audio Result -->
+        <div id="audio-result-section" class="card hidden">
+          <div class="card__title">
+            <span class="card__title-icon">✅</span>
+            <span data-i18n="voiceCloning.audioReady">Audio Ready</span>
+          </div>
+          <audio id="result-audio" class="result-audio" controls></audio>
+          <div class="result-actions">
+            <button id="download-audio-btn" class="btn btn--primary">
+              <span>⬇</span>
+              <span data-i18n="voiceCloning.downloadAudio">Download Audio</span>
+            </button>
+            <button id="clone-new-voice-btn" class="btn btn--ghost">
+              <span>↻</span>
+              <span data-i18n="voiceCloning.cloneNewVoice">Clone New Voice</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PROGRESS -->
+      <div id="progress-section" class="card hidden">
+        <div class="card__title">
+          <span class="card__title-icon">⏳</span>
+          <span id="progress-title" data-i18n="processing">Processing</span>
+        </div>
+        <div class="progress">
+          <div class="progress__bar-wrap">
+            <div id="progress-bar" class="progress__bar"></div>
+          </div>
+          <p id="progress-text" class="progress__text">Starting...</p>
+        </div>
+        <div class="steps">
+          <div class="step" data-step="extract">
+            <div class="step__icon">1</div>
+            <span class="step__label" data-i18n="stepExtract">Extract</span>
+          </div>
+          <div class="step" data-step="transcribe">
+            <div class="step__icon">2</div>
+            <span class="step__label" data-i18n="stepTranscribe">Transcribe</span>
+          </div>
+          <div class="step" data-step="translate">
+            <div class="step__icon">3</div>
+            <span class="step__label" data-i18n="stepTranslate">Translate</span>
+          </div>
+          <div class="step" data-step="synthesize">
+            <div class="step__icon">4</div>
+            <span class="step__label" data-i18n="stepSynthesize">Synthesize</span>
+          </div>
+          <div class="step" data-step="merge">
+            <div class="step__icon">5</div>
+            <span class="step__label" data-i18n="stepMerge">Merge</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULT -->
+      <div id="result-section" class="card hidden">
+        <div class="card__title">
+          <span class="card__title-icon">✅</span>
+          <span data-i18n="dubbingComplete">Dubbing Complete</span>
+        </div>
+        <video id="result-video" class="result-video" controls></video>
+        <div class="result-actions">
+          <button id="download-btn" class="btn btn--primary">
+            <span>⬇</span>
+            <span data-i18n="downloadVideo">Download Dubbed Video</span>
+          </button>
+          <button id="new-job-btn" class="btn btn--ghost">
+            <span>↻</span>
+            <span data-i18n="newJob">New Job</span>
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settings-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <span class="modal__title" data-i18n="settings">Settings</span>
+        <button id="modal-close" class="modal__close">×</button>
+      </div>
+      <div class="modal__body">
+        <div class="setting-row">
+          <div>
+            <div class="setting-row__label" data-i18n="theme">Theme</div>
+          </div>
+          <div class="theme-selector">
+            <button class="theme-btn" data-theme-value="light">
+              <span>☀</span>
+              <span data-i18n="lightTheme">Light</span>
+            </button>
+            <button class="theme-btn" data-theme-value="dark">
+              <span>🌙</span>
+              <span data-i18n="darkTheme">Dark</span>
+            </button>
+            <button class="theme-btn" data-theme-value="system">
+              <span>💻</span>
+              <span data-i18n="systemTheme">System</span>
+            </button>
+          </div>
+        </div>
+        <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:10px;">
+          <div>
+            <div class="setting-row__label" data-i18n="interfaceLanguage">Interface Language</div>
+          </div>
+          <div class="lang-picker">
+            <div class="lang-option" data-lang-value="en">
+              <span class="lang-option__flag">🇺🇸</span>
+              <span class="lang-option__name">English</span>
+              <span class="lang-option__check">✓</span>
+            </div>
+            <div class="lang-option" data-lang-value="ru">
+              <span class="lang-option__flag">🇷🇺</span>
+              <span class="lang-option__name">Русский</span>
+              <span class="lang-option__check">✓</span>
+            </div>
+            <div class="lang-option" data-lang-value="az">
+              <span class="lang-option__flag">🇦🇿</span>
+              <span class="lang-option__name">Azərbaycan</span>
+              <span class="lang-option__check">✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

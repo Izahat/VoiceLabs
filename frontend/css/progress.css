@@ -1,0 +1,130 @@
+/* ═══════════════════════════════════════════════════════════
+   VoiceLabs — Progress, Steps & Results
+   ═══════════════════════════════════════════════════════════ */
+
+.error-msg {
+  color: var(--error);
+  font-size: 0.8rem;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: rgba(239, 68, 68, 0.08);
+  border-radius: var(--radius-xs);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.progress-section { margin-bottom: 16px; }
+
+.progress {
+  margin-bottom: 12px;
+}
+
+.progress__bar-wrap {
+  height: 4px;
+  background: var(--bg-secondary);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress__bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #a78bfa);
+  border-radius: 2px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 0%;
+}
+
+.progress__text {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: 8px;
+}
+
+.steps {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  position: relative;
+}
+
+.steps::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 24px;
+  right: 24px;
+  height: 1px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.step__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all 0.3s;
+}
+
+.step.active .step__icon {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 0 4px var(--accent-light);
+}
+
+.step.done .step__icon {
+  border-color: var(--success);
+  background: var(--success);
+  color: #fff;
+}
+
+.step__label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-align: center;
+  font-weight: 500;
+}
+
+.step.active .step__label { color: var(--accent); font-weight: 600; }
+
+/* ── Result ── */
+.result-video {
+  width: 100%;
+  border-radius: var(--radius);
+  background: #000;
+  max-height: 420px;
+  object-fit: contain;
+  margin-bottom: 16px;
+}
+
+.result-audio {
+  width: 100%;
+  border-radius: var(--radius);
+  background: var(--bg-secondary);
+  margin-bottom: 16px;
+  max-height: 80px;
+}
+
+.result-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.result-actions .btn { flex: 1; }

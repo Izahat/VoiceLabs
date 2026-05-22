@@ -1,0 +1,67 @@
+# ============================================
+# Docker Compose — Сервис распознавания речи (Whisper)
+# ============================================
+# Сначала скачивает модель в volume, потом запускает сервер.
+# Модель скачивается один раз и сохраняется в именованный volume.
+#
+# Использование:
+#   docker compose -f docker3/docker-compose.whisper.yml up -d
+# ============================================
+
+services:
+  # === Скачивание модели faster-whisper-large-v3 ===
+  # Запускается один раз, скачивает модель в HuggingFace cache в именованный volume.
+  # При повторном запуске проверяет наличие модели и пропускает скачивание.
+  model-downloader:
+    image: python:3.10-slim
+    container_name: dublaj-whisper-model-downloader
+    restart: "no"
+    volumes:
+      - whisper-model-data:/root/.cache/huggingface
+    command: >
+      bash -c "
+        if [ -d /root/.cache/huggingface/hub/models--Systran--faster-whisper-large-v3 ]; then
+          echo 'Модель уже скачана, пропускаем скачивание';
+        else
+          echo 'Начинаем скачивание модели...';
+          pip install faster-whisper -q &&
+          python3 -c 'from faster_whisper import WhisperModel; print(\"Скачиваем модель...\"); WhisperModel(\"Systran/faster-whisper-large-v3\"); print(\"Модель скачана!\")';
+        fi
+      "
+
+  # === Сервер faster-whisper-server ===
+  # Использует модель из HuggingFace cache в volume, требует GPU (NVIDIA CUDA).
+  # Ждёт завершения model-downloader перед запуском.
+  whisper:
+    image: fedirz/faster-whisper-server:latest-cuda
+    container_name: dublaj-whisper
+    ports:
+      - "8100:8000"
+    volumes:
+      - whisper-model-data:/root/.cache/huggingface
+    environment:
+      - WHISPER__MODEL=Systran/faster-whisper-large-v3
+      - WHISPER__INFERENCE_DEVICE=cuda
+    restart: unless-stopped
+    depends_on:
+      model-downloader:
+        condition: service_completed_successfully
+    # Проверка здоровья: запрос к /health эндпоинту
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    # Назначаем все доступные GPU
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+# Именованный volume для хранения модели между перезапусками
+volumes:
+  whisper-model-data:

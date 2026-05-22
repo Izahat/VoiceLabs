@@ -1,0 +1,22 @@
+# --- Web Framework ---
+fastapi>=0.115.0
+uvicorn[standard]>=0.34.0
+
+# --- Configuration ---
+pydantic-settings>=2.7.0
+
+# --- HTTP Client (for Whisper service) ---
+httpx>=0.28.0
+
+# --- AI / Translation (Google Gemini) ---
+google-genai>=1.14.0
+
+# --- TTS (OmniVoice — HTTP API, 600+ languages) ---
+# Run: docker compose -f docker3/docker-compose.omnivoice.yml up -d --build
+
+# --- Utilities ---
+python-multipart>=0.0.18
+
+# --- System Dependencies (NOT python packages) ---
+# ffmpeg (Required for audio/video processing)
+# Install on Ubuntu/Debian: sudo apt update && sudo apt install -y ffmpeg

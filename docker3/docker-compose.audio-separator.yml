@@ -1,0 +1,68 @@
+# ============================================================
+# Audio Separator — Voice/Music Separation Service
+# Uses audio-separator with UVR models (MDX23C)
+# Сначала скачивает модель в volume, потом запускает сервер.
+# Модель скачивается один раз и сохраняется в именованный volume.
+# Port: 8300
+# ============================================================
+# Usage:
+#   docker compose -f docker3/docker-compose.audio-separator.yml up -d --build
+# ============================================================
+
+services:
+  # === Скачивание модели audio-separator ===
+  # Запускается один раз, скачивает модель в именованный volume.
+  # При повторном запуске проверяет наличие модели и пропускает скачивание.
+  model-downloader:
+    build:
+      context: ..
+      dockerfile: docker3/Dockerfile.audio-separator
+    container_name: dublaj-audio-separator-model-downloader
+    restart: "no"
+    volumes:
+      - audio-separator-model-data:/models
+    environment:
+      - MODEL_NAME=melband_roformer_big_beta4.ckpt
+    command: >
+      bash -c "
+        if find /models -name '*.ckpt' -o -name '*.onnx' | grep -q .; then
+          echo 'Модель уже скачана, пропускаем скачивание';
+        else
+          echo 'Начинаем скачивание модели audio-separator...';
+          python3 -c 'from audio_separator.separator import Separator; print(\"Скачиваем модель...\"); s = Separator(model_file_dir=\"/models\", output_dir=\"/tmp\"); s.load_model(\"melband_roformer_big_beta4.ckpt\"); print(\"Модель скачана!\")';
+        fi
+      "
+
+  # === Audio Separator сервер ===
+  # Использует модель из volume, требует GPU (NVIDIA CUDA).
+  # Ждёт завершения model-downloader перед запуском.
+  audio-separator:
+    build:
+      context: ..
+      dockerfile: docker3/Dockerfile.audio-separator
+    container_name: dublaj-audio-separator
+    ports:
+      - "8300:8300"
+    volumes:
+      - audio-separator-model-data:/models
+    environment:
+      - MODEL_NAME=melband_roformer_big_beta4.ckpt
+      - OUTPUT_DIR=/output
+      - NVIDIA_VISIBLE_DEVICES=all
+      - CUDA_VISIBLE_DEVICES=0
+      - ONNXRUNTIME_DEVICE=cuda
+    restart: unless-stopped
+    depends_on:
+      model-downloader:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+# Именованный volume для хранения модели между перезапусками
+volumes:
+  audio-separator-model-data:

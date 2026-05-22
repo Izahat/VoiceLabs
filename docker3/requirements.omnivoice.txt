@@ -1,0 +1,8 @@
+# OmniVoice TTS Server Dependencies
+torch==2.5.1+cu124
+torchaudio==2.5.1+cu124
+omnivoice
+fastapi
+uvicorn
+soundfile
+pydantic

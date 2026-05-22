@@ -1,0 +1,13 @@
+/* ═══════════════════════════════════════════════════════════
+   VoiceLabs — Utilities & Responsive
+   ═══════════════════════════════════════════════════════════ */
+
+.hidden { display: none !important; }
+
+@media (max-width: 600px) {
+  .form-row { grid-template-columns: 1fr; }
+  .main { padding: 20px 16px 48px; }
+  .header { padding: 0 16px; }
+  .steps::before { left: 16px; right: 16px; }
+  .result-actions { flex-direction: column; }
+}
