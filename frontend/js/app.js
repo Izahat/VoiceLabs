@@ -18,6 +18,7 @@ import {
 import {
   showError, clearError,
 } from './jobs.js';
+import { setupTranscribeListeners } from './transcribe.js';
 
 // ── Init ─────────────────────────────────────────────────────
 async function init() {
@@ -32,6 +33,7 @@ async function init() {
   setupRefAudioDropzone();
   setupRecordButton();
   setupTextModeListeners();
+  setupTranscribeListeners();
   updateThemeIcon();
 }
 

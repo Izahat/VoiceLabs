@@ -7,12 +7,9 @@ If you swap an infrastructure component, you only change THIS file.
 
 """
 
-from app.domain.interfaces import IAudioMixer, ITranscriber, ITranslator, ITTSSynthesizer, IVoiceSeparator
-from app.services.dubbing_orchestrator import DubbingOrchestrator
+from app.domain.interfaces import ITranscriber, ITTSSynthesizer
+from app.services.voice_service import VoiceService
 from config.settings import Settings
-from infrastructure.audio_separator_client import AudioSeparatorClient
-from infrastructure.ffmpeg_audio_mixer import FFmpegAudioMixer
-from infrastructure.llm_translator import LLMTranslator
 from infrastructure.omnivoice_tts_synthesizer import OmniVoiceTTSSynthesizer
 from infrastructure.whisper_transcriber import WhisperTranscriber
 
@@ -33,48 +30,30 @@ class ServiceFactory:
     def create_transcriber(self) -> ITranscriber:
         """Create the speech-to-text transcriber."""
         return WhisperTranscriber(
-            whisper_url=self._settings.whisper_url,
-        )
-
-    def create_translator(self) -> ITranslator:
-        """Create the text translator."""
-        return LLMTranslator(
-            api_key=self._settings.gemini_api_key,
-            model_name=self._settings.translation_model,
+            model_name=self._settings.whisper_model_repo,
+            cache_dir=self._settings.model_cache_dir,
+            device=self._settings.whisper_device,
+            compute_type=self._settings.whisper_compute_type,
+            hf_token=self._settings.hf_token or None,
         )
 
     def create_tts_synthesizer(self) -> ITTSSynthesizer:
         """Create the TTS synthesizer using OmniVoice (600+ languages, voice cloning)."""
         return OmniVoiceTTSSynthesizer(
-            omnivoice_url=self._settings.omnivoice_url,
+            model_name=self._settings.omnivoice_model,
             default_voice=self._settings.omnivoice_voice,
+            cache_dir=self._settings.model_cache_dir,
+            device=self._settings.ai_device,
+            hf_token=self._settings.hf_token or None,
         )
 
-    def create_audio_mixer(self) -> IAudioMixer:
-        """Create the audio extraction / merging service."""
-        return FFmpegAudioMixer(
-            ffmpeg_path=self._settings.ffmpeg_path,
-        )
-
-    def create_voice_separator(self) -> IVoiceSeparator:
-        """Create the voice/music separation service."""
-        return AudioSeparatorClient(
-            separator_url=self._settings.audio_separator_url,
-        )
-
-    def create_orchestrator(self) -> DubbingOrchestrator:
-        """
-        Create the fully-wired dubbing orchestrator.
-
-        This is the main entry point — all dependencies are resolved here.
-        """
-        return DubbingOrchestrator(
+    def create_voice_service(self) -> VoiceService:
+        """Create the active OmniVoice-only application service."""
+        return VoiceService(
             transcriber=self.create_transcriber(),
-            translator=self.create_translator(),
             tts_synthesizer=self.create_tts_synthesizer(),
-            audio_mixer=self.create_audio_mixer(),
-            voice_separator=self.create_voice_separator(),
-            use_voice_separation=self._settings.use_voice_separation,
+            voice_separator=None,
+            use_voice_separation=False,
             temp_dir=self._settings.temp_dir,
             output_dir=self._settings.output_dir,
         )

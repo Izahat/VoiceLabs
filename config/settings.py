@@ -5,6 +5,7 @@ All values are loaded from .env — zero hardcoding.
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Optional
 
 from pydantic_settings import BaseSettings
 
@@ -18,37 +19,36 @@ class Settings(BaseSettings):
     temp_dir: Path = Path("./tmp")
     output_dir: Path = Path("./output")
 
-    # --- Whisper Service ---
-    whisper_base_url: str = "http://localhost:8100"
-    whisper_endpoint: str = "/v1/audio/transcriptions"
+    # --- Persistence and file storage ---
+    database_url: str = "sqlite+aiosqlite:///./data/voicelabs.db"
+    storage_dir: Path = Path("./data/storage")
 
-    # --- Translation Model ---
-    translation_provider: str = "gemini"
-    gemini_api_key: str = ""
-    translation_model: str = "gemini-2.0-flash"
+    # --- Direct local model runtime ---
+    whisper_model_repo: str = "deepdml/faster-whisper-large-v3-turbo-ct2"
+    omnivoice_model: str = "k2-fsa/OmniVoice"
+    model_cache_dir: Optional[str] = None
+    hf_token: str = ""
+    whisper_device: str = "auto"
+    whisper_compute_type: str = "auto"
+    omnivoice_voice: str = "female"
+    ai_device: str = "auto"
 
-    # --- TTS (OmniVoice — HTTP API, 600+ languages) ---
-    omnivoice_url: str = "http://localhost:8200"
-    omnivoice_voice: str = "english_male"
-
-    # --- Voice Separator (audio-separator, UVR models) ---
-    audio_separator_url: str = "http://localhost:8300"
-    use_voice_separation: bool = False  # Enable for better voice cloning quality
+    # --- Speaker Diarization (Sherpa-onnx or PyAnnote) ---
+    diarization_provider: str = "pyannote"  # "pyannote" or "sherpa"
+    sherpa_diarization_url: str = "http://localhost:8400"
+    pyannote_diarization_url: str = "http://localhost:8400"
 
     # --- FFmpeg ---
     ffmpeg_path: str = "ffmpeg"
+
+    # --- Video Downloader (yt-dlp) ---
+    video_download_timeout: int = 600  # 10 minutes
 
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",
         "extra": "ignore",
     }
-
-    @property
-    def whisper_url(self) -> str:
-        """Full URL for the Whisper transcription endpoint."""
-        return f"{self.whisper_base_url}{self.whisper_endpoint}"
-
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:

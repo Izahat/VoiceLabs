@@ -48,7 +48,7 @@ function populateLanguages(langs) {
     }
   });
 
-  const textLangIds = ['text-language', 'clone-text-language', 'vd-language'];
+  const textLangIds = ['text-language', 'clone-text-language', 'vd-language', 'transcribe-language'];
   const commonCodes = ['en', 'ru', 'az', 'tr', 'uk', 'de', 'fr', 'es', 'it', 'pt', 'zh', 'ja', 'ko', 'ar', 'hi', 'fa', 'ur', 'bn', 'vi', 'id'];
 
   textLangIds.forEach(id => {

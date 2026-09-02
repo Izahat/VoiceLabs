@@ -134,6 +134,7 @@ class DubbingJob:
 
     id: str = field(default_factory=lambda: uuid.uuid4().hex)
     status: JobStatus = JobStatus.PENDING
+    source_language: Optional[str] = None
     target_language: str = ""
 
     # File paths

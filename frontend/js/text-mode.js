@@ -1,5 +1,5 @@
 import { translations } from './i18n.js';
-import { API_BASE } from './api.js';
+import { API_BASE, getUserHeaders } from './api.js';
 import { getCurrentLang } from './state.js';
 import { showError, clearError, showTextProgress, showAudioResult, hideProgress } from './jobs.js';
 
@@ -89,6 +89,7 @@ async function cloneVoice(audioFile) {
 
   const res = await fetch(`${API_BASE}/dubbing/tts/clone`, {
     method: 'POST',
+    headers: getUserHeaders(),
     body: form,
   });
   if (!res.ok) {
@@ -101,7 +102,7 @@ async function cloneVoice(audioFile) {
 async function synthesizeWithClone(text, voiceId, language) {
   const res = await fetch(`${API_BASE}/dubbing/tts/synthesize`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...getUserHeaders() },
     body: JSON.stringify({ text, voice_id: voiceId, language }),
   });
   if (!res.ok) {

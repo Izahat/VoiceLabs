@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="css/progress.css">
   <link rel="stylesheet" href="css/modal.css">
   <link rel="stylesheet" href="css/recorder.css">
+  <link rel="stylesheet" href="css/transcribe.css">
   <link rel="stylesheet" href="css/utilities.css">
 </head>
 <body>
@@ -42,6 +43,10 @@
         <button class="tab" data-tab="cloning">
           <span class="tab-icon">🔊</span>
           <span data-i18n="tabs.voiceCloning">Voice Cloning</span>
+        </button>
+        <button class="tab" data-tab="transcribe">
+          <span class="tab-icon">📝</span>
+          <span data-i18n="tabs.transcribe">Transcribe</span>
         </button>
       </div>
 
@@ -237,6 +242,106 @@
 
       </div>
 
+      <!-- TRANSCRIBE TAB -->
+      <div id="tab-transcribe" class="tab-content">
+
+        <div class="card">
+          <div class="card__title">
+            <span class="card__title-icon">🎬</span>
+            <span>Transcribe Audio/Video</span>
+          </div>
+          <div id="transcribe-dropzone" class="dropzone">
+            <div class="dropzone__icon">📁</div>
+            <p class="dropzone__text">Drag & drop audio or video file</p>
+            <p class="dropzone__hint">Supported: MP3, WAV, MP4, MOV, AVI, MKV, WebM</p>
+            <div id="transcribe-file-info" class="dropzone__file hidden">
+              <div class="dropzone__file-icon">🎙</div>
+              <span class="dropzone__file-name" id="transcribe-filename"></span>
+              <span class="dropzone__file-size" id="transcribe-filesize"></span>
+              <button class="dropzone__file-remove" id="transcribe-remove">×</button>
+            </div>
+          </div>
+          <input type="file" id="transcribe-file-input" accept="audio/*,video/*" class="hidden">
+        </div>
+
+        <div class="card">
+          <div class="card__title">
+            <span class="card__title-icon">🔗</span>
+            <span>Or paste a URL</span>
+          </div>
+          <div class="form-group">
+            <input type="url" id="transcribe-url" class="text-input" placeholder="YouTube, TikTok, or Instagram URL...">
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__title">
+            <span class="card__title-icon">⚙️</span>
+            <span>Options</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="transcribe-language">Language (auto-detect if empty)</label>
+              <select id="transcribe-language">
+                <option value="">Auto-detect</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="transcribe-diarization" disabled>
+              <span>Speaker Diarization (planned)</span>
+            </label>
+          </div>
+        </div>
+
+        <button id="start-transcribe-btn" class="btn btn--primary" disabled>
+          <span>▶</span>
+          <span>Start Transcription</span>
+        </button>
+        <div id="transcribe-error" class="error-msg hidden"></div>
+
+        <!-- Transcription Progress -->
+        <div id="transcribe-progress" class="card hidden">
+          <div class="card__title">
+            <span class="card__title-icon">⏳</span>
+            <span>Transcribing...</span>
+          </div>
+          <div class="progress">
+            <div class="progress__bar-wrap">
+              <div id="transcribe-bar" class="progress__bar"></div>
+            </div>
+            <p id="transcribe-status" class="progress__text">Preparing...</p>
+          </div>
+        </div>
+
+        <!-- Transcription Result -->
+        <div id="transcribe-result" class="card hidden">
+          <div class="card__title">
+            <span class="card__title-icon">✅</span>
+            <span>Transcription Complete</span>
+          </div>
+          <div class="transcribe-info">
+            <span class="badge" id="transcribe-language-badge">EN</span>
+            <span class="transcribe-duration" id="transcribe-duration"></span>
+            <span class="transcribe-speakers" id="transcribe-speakers-count"></span>
+          </div>
+          <div class="transcribe-text" id="transcribe-text"></div>
+          <div class="transcribe-segments" id="transcribe-segments"></div>
+          <div class="result-actions">
+            <button id="transcribe-copy-btn" class="btn btn--primary">
+              <span>📋</span>
+              <span>Copy Text</span>
+            </button>
+            <button id="transcribe-new-btn" class="btn btn--ghost">
+              <span>↻</span>
+              <span>New Transcription</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
       <!-- PROGRESS -->
       <div id="progress-section" class="card hidden">
         <div class="card__title">
@@ -258,16 +363,12 @@
             <div class="step__icon">2</div>
             <span class="step__label" data-i18n="stepTranscribe">Transcribe</span>
           </div>
-          <div class="step" data-step="translate">
-            <div class="step__icon">3</div>
-            <span class="step__label" data-i18n="stepTranslate">Translate</span>
-          </div>
           <div class="step" data-step="synthesize">
-            <div class="step__icon">4</div>
+            <div class="step__icon">3</div>
             <span class="step__label" data-i18n="stepSynthesize">Synthesize</span>
           </div>
           <div class="step" data-step="merge">
-            <div class="step__icon">5</div>
+            <div class="step__icon">4</div>
             <span class="step__label" data-i18n="stepMerge">Merge</span>
           </div>
         </div>

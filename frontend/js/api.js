@@ -1,4 +1,13 @@
 export const API_BASE = 'http://localhost:8000/api/v1';
+export const USER_ID = localStorage.getItem('voicelabs-user-id') || (() => {
+  const id = crypto.randomUUID();
+  localStorage.setItem('voicelabs-user-id', id);
+  return id;
+})();
+
+export function getUserHeaders() {
+  return { 'X-User-Id': USER_ID };
+}
 
 export async function fetchLanguages() {
   try {
@@ -39,31 +48,6 @@ export async function fetchLanguages() {
   }
 }
 
-export async function startDubbing({ video, sourceLang, targetLang, voiceParams }) {
-  const form = new FormData();
-  form.append('video', video);
-  form.append('source_language', sourceLang || 'auto');
-  form.append('target_language', targetLang);
-
-  if (voiceParams.gender) form.append('gender', voiceParams.gender);
-  if (voiceParams.age) form.append('age', voiceParams.age);
-  if (voiceParams.pitch) form.append('pitch', voiceParams.pitch);
-  if (voiceParams.style) form.append('style', voiceParams.style);
-  if (voiceParams.accent) form.append('accent', voiceParams.accent);
-  if (voiceParams.custom_instruct) form.append('custom_instruct', voiceParams.custom_instruct);
-
-  const res = await fetch(`${API_BASE}/dubbing/process`, {
-    method: 'POST',
-    body: form,
-  });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
-    throw new Error(err.detail || `HTTP ${res.status}`);
-  }
-  return res.json();
-}
-
 export async function startCloning({ referenceAudio, sourceLang, targetLang, text, textLanguage }) {
   const form = new FormData();
   form.append('reference_audio', referenceAudio);
@@ -74,6 +58,7 @@ export async function startCloning({ referenceAudio, sourceLang, targetLang, tex
 
   const res = await fetch(`${API_BASE}/dubbing/clone`, {
     method: 'POST',
+    headers: getUserHeaders(),
     body: form,
   });
 
@@ -85,7 +70,7 @@ export async function startCloning({ referenceAudio, sourceLang, targetLang, tex
 }
 
 export async function pollJob(jobId) {
-  const res = await fetch(`${API_BASE}/dubbing/status/${jobId}`);
+  const res = await fetch(`${API_BASE}/dubbing/status/${jobId}`, { headers: getUserHeaders() });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -103,7 +88,7 @@ export async function synthesizeVoiceDesign({ text, language, voiceParams }) {
 
   const res = await fetch(`${API_BASE}/dubbing/tts/voice-design`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...getUserHeaders() },
     body: JSON.stringify(body),
   });
 

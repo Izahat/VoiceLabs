@@ -87,6 +87,7 @@ class DubbingOrchestrator:
 
             job.transcription = await self._transcriber.transcribe(
                 audio_path=job.extracted_audio_path,
+                language=job.source_language,
             )
             logger.info(
                 "Job %s — detected language: %s, segments: %d",
@@ -188,6 +189,7 @@ class DubbingOrchestrator:
 
             job.transcription = await self._transcriber.transcribe(
                 audio_path=job.extracted_audio_path,
+                language=job.source_language,
             )
 
             # ── Step 3: Translate ─────────────────────────────────────────
@@ -327,6 +329,7 @@ class DubbingOrchestrator:
 
             job.transcription = await self._transcriber.transcribe(
                 audio_path=ref_audio_path,
+                language=job.source_language,
             )
             logger.info(
                 "Job %s — detected language: %s, segments: %d",
@@ -443,7 +446,8 @@ class DubbingOrchestrator:
         ref_text_path = voice_dir / "ref_text.txt"
         ref_text = ref_text_path.read_text() if ref_text_path.exists() else "a voice"
 
-        output_path = self._output_dir / f"tts_{voice_id}.mp3"
+        # OmniVoice returns WAV bytes; keep the extension and MIME type honest.
+        output_path = self._output_dir / f"tts_{voice_id}.wav"
 
         logger.info(
             "Synthesizing text with cloned voice %s: %d chars (language: %s)",

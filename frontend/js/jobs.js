@@ -1,5 +1,6 @@
 import { translations } from './i18n.js';
 import { getCurrentLang, setPollInterval } from './state.js';
+import { getUserHeaders } from './api.js';
 
 export function showProgress(type) {
   const section = document.getElementById('progress-section');
@@ -19,7 +20,7 @@ export function hideProgress() {
 export function updateProgress(step, pct, text) {
   document.getElementById('progress-bar').style.width = pct + '%';
   document.getElementById('progress-text').textContent = text;
-  const steps = ['extract', 'transcribe', 'translate', 'synthesize', 'merge'];
+  const steps = ['extract', 'transcribe', 'synthesize', 'merge'];
   const idx = steps.indexOf(step);
   steps.forEach((s, i) => {
     const el = document.querySelector(`.step[data-step="${s}"]`);
@@ -51,10 +52,10 @@ export function clearError(id) {
 export function startPolling(id, type) {
   const interval = setInterval(async () => {
     try {
-      const res = await fetch(`/api/v1/dubbing/status/${id}`);
+      const res = await fetch(`/api/v1/dubbing/status/${id}`, { headers: getUserHeaders() });
       const data = await res.json();
       const step = data.step || data.status;
-      const pctMap = { extract: 20, transcribe: 40, translate: 60, synthesize: 80, merge: 95 };
+      const pctMap = { extract: 20, transcribe: 50, synthesize: 75, merge: 95 };
       updateProgress(step, pctMap[step] || 0, `Step: ${step}...`);
 
       if (data.status === 'completed' || data.state === 'completed') {

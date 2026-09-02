@@ -11,6 +11,8 @@ env/
 faster-whisper-large-v3/
 output/
 tmp/
+data/
+.cache/
 
 # OS
 .DS_Store

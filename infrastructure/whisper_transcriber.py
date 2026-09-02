@@ -1,78 +1,127 @@
-"""
-Whisper Transcriber — HTTP client to the local faster-whisper service.
+"""Direct faster-whisper Turbo ASR adapter.
 
-Implements ITranscriber by calling the OpenAI-compatible /v1/audio/transcriptions
-endpoint exposed by the faster-whisper-server Docker container.
+The model is loaded lazily from the shared Hugging Face cache. No HTTP or
+Docker service is involved in transcription.
 """
 
+from __future__ import annotations
+
+import asyncio
 import logging
 from pathlib import Path
-
-import httpx
+from threading import Lock
 
 from app.domain.entities import TranscriptionResult, TranscriptionSegment
 from app.domain.interfaces import ITranscriber
+from infrastructure.model_runtime import cached_snapshot, resolve_whisper_runtime
 
 logger = logging.getLogger(__name__)
 
 
 class WhisperTranscriber(ITranscriber):
-    """
-    Sends audio to the local faster-whisper HTTP service and parses the response.
+    """Transcribe audio with `deepdml/faster-whisper-large-v3-turbo-ct2`."""
 
-    The service must expose an OpenAI-compatible transcription endpoint.
-    """
+    def __init__(
+        self,
+        model_name: str = "deepdml/faster-whisper-large-v3-turbo-ct2",
+        cache_dir: str | Path | None = None,
+        device: str = "auto",
+        compute_type: str = "auto",
+        hf_token: str | None = None,
+    ) -> None:
+        self._model_name = model_name
+        self._cache_dir = cache_dir
+        self._requested_device = device
+        self._requested_compute_type = compute_type
+        self._hf_token = hf_token
+        self._model = None
+        self._model_lock = Lock()
+        self._device = "unknown"
+        self._compute_type = "unknown"
 
-    def __init__(self, whisper_url: str, timeout: float = 300.0) -> None:
-        self._whisper_url = whisper_url
-        self._timeout = timeout
+    def _load_model(self):
+        if self._model is not None:
+            return self._model
 
-    async def transcribe(self, audio_path: Path) -> TranscriptionResult:
-        """Send audio file to Whisper service, return structured transcription."""
+        with self._model_lock:
+            if self._model is not None:
+                return self._model
 
-        logger.info("Sending %s to Whisper at %s", audio_path.name, self._whisper_url)
+            from faster_whisper import WhisperModel
 
-        async with httpx.AsyncClient(timeout=self._timeout) as client:
-            with open(audio_path, "rb") as audio_file:
-                files = {"file": (audio_path.name, audio_file, "audio/wav")}
-                data = {
-                    "response_format": "verbose_json",
-                    "timestamp_granularities[]": "segment",
-                }
-
-                response = await client.post(
-                    self._whisper_url,
-                    files=files,
-                    data=data,
+            model_path = cached_snapshot(
+                self._model_name,
+                cache_dir=self._cache_dir,
+                token=self._hf_token,
+            )
+            self._device, self._compute_type = resolve_whisper_runtime(
+                self._requested_device,
+                self._requested_compute_type,
+            )
+            logger.info(
+                "Loading Whisper Turbo from cache: %s (device=%s, compute_type=%s)",
+                model_path,
+                self._device,
+                self._compute_type,
+            )
+            try:
+                self._model = WhisperModel(
+                    str(model_path),
+                    device=self._device,
+                    compute_type=self._compute_type,
                 )
-                response.raise_for_status()
+            except RuntimeError:
+                if self._requested_device not in {None, "", "auto"} or self._device != "cuda":
+                    raise
+                logger.warning("Whisper CUDA initialization failed; retrying on CPU int8")
+                self._device, self._compute_type = "cpu", "int8"
+                self._model = WhisperModel(
+                    str(model_path), device="cpu", compute_type="int8"
+                )
+            return self._model
 
-        result = response.json()
-
-        # Parse segments from the verbose JSON response
+    def _transcribe_sync(self, audio_path: Path, language: str | None) -> TranscriptionResult:
+        model = self._load_model()
+        segments_iter, info = model.transcribe(
+            str(audio_path),
+            language=None if not language or language == "auto" else language,
+            beam_size=5,
+            temperature=0.0,
+            condition_on_previous_text=False,
+            vad_filter=False,
+        )
         segments = [
             TranscriptionSegment(
-                start=seg.get("start", 0.0),
-                end=seg.get("end", 0.0),
-                text=seg.get("text", "").strip(),
+                start=segment.start,
+                end=segment.end,
+                text=segment.text.strip(),
             )
-            for seg in result.get("segments", [])
+            for segment in segments_iter
         ]
-
-        full_text = result.get("text", "").strip()
-        if not full_text and segments:
-            full_text = " ".join(seg.text for seg in segments)
-
-        detected_language = result.get("language", "unknown")
-
+        full_text = " ".join(segment.text for segment in segments).strip()
         logger.info(
-            "Whisper transcription complete — language=%s, segments=%d",
-            detected_language,
+            "Whisper Turbo transcription complete — language=%s, segments=%d, device=%s",
+            info.language,
             len(segments),
+            self._device,
         )
-
         return TranscriptionResult(
             segments=segments,
-            language=detected_language,
+            language=info.language or "unknown",
             full_text=full_text,
         )
+
+    async def transcribe(
+        self, audio_path: Path, language: str | None = None
+    ) -> TranscriptionResult:
+        """Run blocking model inference off the FastAPI event loop."""
+        return await asyncio.to_thread(self._transcribe_sync, audio_path, language)
+
+    @property
+    def runtime(self) -> dict[str, str]:
+        return {
+            "model": self._model_name,
+            "device": self._device,
+            "compute_type": self._compute_type,
+            "loaded": str(self._model is not None).lower(),
+        }

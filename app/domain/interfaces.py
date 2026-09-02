@@ -13,7 +13,7 @@ class ITranscriber(ABC):
     """Contract for Speech-to-Text services."""
 
     @abstractmethod
-    async def transcribe(self, audio_path: Path) -> TranscriptionResult:
+    async def transcribe(self, audio_path: Path, language: str | None = None) -> TranscriptionResult:
         """
         Transcribe an audio file into text segments.
 
