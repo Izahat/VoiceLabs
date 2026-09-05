@@ -534,12 +534,43 @@ async def list_jobs(external_user_id: Optional[str] = Header(None, alias="X-User
                 "target_language": job.target_language,
                 "source_asset_id": job.source_asset_id,
                 "output_asset_id": job.output_asset_id,
+                "output_url": f"/api/v1/dubbing/assets/{job.output_asset_id}" if job.output_asset_id else None,
                 "error": job.error_message,
                 "created_at": job.created_at.isoformat() if job.created_at else None,
             }
             for job in jobs
         ]
     }
+
+
+@router.get("/voice-profiles")
+async def list_voice_profiles(external_user_id: Optional[str] = Header(None, alias="X-User-Id")):
+    """List the current user's persisted voice profiles and reference metadata."""
+    persistence = _get_persistence()
+    user = await persistence.ensure_user(external_user_id)
+    profiles = await persistence.list_voice_profiles(user.id)
+    result = []
+    for profile in profiles:
+        asset = await persistence.get_asset(profile.reference_asset_id)
+        result.append(
+            {
+                "id": profile.id,
+                "created_at": profile.created_at.isoformat() if profile.created_at else None,
+                "reference_text": profile.reference_text,
+                "reference_asset": (
+                    {
+                        "id": asset.id,
+                        "original_filename": asset.original_filename,
+                        "mime_type": asset.mime_type,
+                        "size_bytes": asset.size_bytes,
+                        "url": f"/api/v1/dubbing/assets/{asset.id}",
+                    }
+                    if asset
+                    else None
+                ),
+            }
+        )
+    return {"profiles": result}
 
 
 @router.get("/assets/{asset_id}")

@@ -1,454 +1,157 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark light">
+  <meta name="api-base" content="">
   <title>VoiceLabs</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/variables.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/header.css">
-  <link rel="stylesheet" href="css/tabs.css">
-  <link rel="stylesheet" href="css/card.css">
-  <link rel="stylesheet" href="css/forms.css">
-  <link rel="stylesheet" href="css/progress.css">
-  <link rel="stylesheet" href="css/modal.css">
-  <link rel="stylesheet" href="css/recorder.css">
-  <link rel="stylesheet" href="css/transcribe.css">
-  <link rel="stylesheet" href="css/utilities.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/variables.css?v=3">
+  <link rel="stylesheet" href="css/base.css?v=4">
+  <link rel="stylesheet" href="css/header.css?v=4">
+  <link rel="stylesheet" href="css/tabs.css?v=3">
+  <link rel="stylesheet" href="css/card.css?v=3">
+  <link rel="stylesheet" href="css/forms.css?v=4">
+  <link rel="stylesheet" href="css/progress.css?v=4">
+  <link rel="stylesheet" href="css/modal.css?v=3">
+  <link rel="stylesheet" href="css/recorder.css?v=4">
+  <link rel="stylesheet" href="css/transcribe.css?v=3">
+  <link rel="stylesheet" href="css/utilities.css?v=4">
 </head>
 <body>
-  <div id="app">
-
-    <!-- HEADER -->
-    <header class="header">
-      <a href="#" class="header__logo">
-        <div class="header__logo-icon">🎙</div>
-        <span class="header__logo-text">VoiceLabs</span>
-      </a>
-      <div class="header__actions">
-        <button id="btn-theme" class="icon-btn" title="Toggle theme" data-theme-icon>🌙</button>
-        <button id="btn-settings" class="icon-btn" title="Settings">⚙</button>
+  <a class="skip-link" href="#main-content" data-i18n="a11y.skipToContent">Skip to content</a>
+  <div id="app" class="app-shell">
+    <aside id="app-sidebar" class="sidebar" aria-label="Primary navigation">
+      <div class="sidebar__top">
+        <a href="#design" class="brand" aria-label="VoiceLabs home">
+          <span class="brand__mark" aria-hidden="true"><svg class="icon"><use href="assets/lucide-sprite.svg#audio-waveform"></use></svg></span>
+          <span class="brand__name">VoiceLabs</span>
+        </a>
+        <button id="sidebar-close" class="icon-button sidebar__close" type="button" aria-label="Close navigation" data-i18n-aria-label="a11y.closeNavigation" data-i18n-tooltip="a11y.closeNavigation"><svg class="icon"><use href="assets/lucide-sprite.svg#x"></use></svg></button>
       </div>
-    </header>
+      <nav class="sidebar__nav" aria-label="VoiceLabs">
+        <p class="nav-section-label" data-i18n="nav.createVoice">Create voice</p>
+        <button class="tab nav-item active" type="button" data-tab="design" aria-current="page"><svg class="icon"><use href="assets/lucide-sprite.svg#sparkles"></use></svg><span data-i18n="nav.voiceDesign">Voice Design</span></button>
+        <button class="tab nav-item" type="button" data-tab="cloning"><svg class="icon"><use href="assets/lucide-sprite.svg#user-round"></use></svg><span data-i18n="nav.voiceCloning">Voice Cloning</span></button>
+        <div class="nav-divider"></div>
+        <button class="tab nav-item" type="button" data-tab="transcribe"><svg class="icon"><use href="assets/lucide-sprite.svg#file-text"></use></svg><span data-i18n="nav.transcription">Transcription</span></button>
+        <div class="nav-divider"></div>
+        <button class="tab nav-item" type="button" data-tab="jobs"><svg class="icon"><use href="assets/lucide-sprite.svg#history"></use></svg><span data-i18n="nav.recentJobs">Recent Jobs</span></button>
+        <button class="tab nav-item" type="button" data-tab="profiles"><svg class="icon"><use href="assets/lucide-sprite.svg#users-round"></use></svg><span data-i18n="nav.voiceProfiles">Voice Profiles</span></button>
+      </nav>
+      <div class="sidebar__footer"><button id="sidebar-settings" class="nav-item" type="button"><svg class="icon"><use href="assets/lucide-sprite.svg#settings"></use></svg><span data-i18n="settings.title">Settings</span></button></div>
+    </aside>
+    <button id="nav-scrim" class="nav-scrim" type="button" aria-label="Close navigation" tabindex="-1"></button>
 
-    <!-- MAIN -->
-    <main class="main">
-      <div class="tabs">
-        <button class="tab active" data-tab="design">
-          <span class="tab-icon">🎤</span>
-          <span data-i18n="tabs.voiceDesign">Voice Design</span>
-        </button>
-        <button class="tab" data-tab="cloning">
-          <span class="tab-icon">🔊</span>
-          <span data-i18n="tabs.voiceCloning">Voice Cloning</span>
-        </button>
-        <button class="tab" data-tab="transcribe">
-          <span class="tab-icon">📝</span>
-          <span data-i18n="tabs.transcribe">Transcribe</span>
-        </button>
-      </div>
-
-      <!-- VOICE DESIGN TAB -->
-      <div id="tab-design" class="tab-content active">
-
-        <div class="card">
-          <div class="card__title">
-            <span class="card__title-icon">📝</span>
-            <span data-i18n="voiceDesign.enterText">Enter Text</span>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="vd-language" data-i18n="voiceCloning.textLanguage">Text Language</label>
-              <select id="vd-language">
-                <option value="" data-i18n="loadingLangs">Loading languages...</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <textarea id="vd-text" class="text-input" rows="4" placeholder="Enter text to generate speech..." data-i18n-placeholder="voiceDesign.enterTextPlaceholder"></textarea>
-          </div>
+    <div class="app-stage">
+      <header class="app-header">
+        <div class="app-header__left">
+          <button id="mobile-menu" class="icon-button mobile-menu" type="button" aria-label="Open navigation" data-i18n-aria-label="a11y.openNavigation" aria-controls="app-sidebar" aria-expanded="false" data-i18n-tooltip="a11y.openNavigation"><svg class="icon"><use href="assets/lucide-sprite.svg#menu"></use></svg></button>
+          <div class="mobile-brand" aria-hidden="true"><svg class="icon"><use href="assets/lucide-sprite.svg#audio-waveform"></use></svg><span>VoiceLabs</span></div>
+          <div class="breadcrumbs" aria-label="Breadcrumb"><span id="current-section" data-i18n="nav.createVoice">Create voice</span><span class="breadcrumbs__separator" aria-hidden="true">/</span><span id="current-page" class="breadcrumbs__current">Voice Design</span></div>
         </div>
-
-        <div class="card">
-          <div class="card__title">
-            <span class="card__title-icon">🎤</span>
-            <span data-i18n="voiceDesignTitle">Voice Design Parameters</span>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="gender" data-i18n="gender">Gender</label>
-              <select id="gender">
-                <option value="" data-i18n="notSpecified">Not specified</option>
-                <option value="male" data-i18n="male">Male</option>
-                <option value="female" data-i18n="female">Female</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="age" data-i18n="age">Age</label>
-              <select id="age">
-                <option value="" data-i18n="notSpecified">Not specified</option>
-                <option value="child" data-i18n="child">Child</option>
-                <option value="teenager" data-i18n="teenager">Teenager</option>
-                <option value="young adult" data-i18n="youngAdult">Young Adult</option>
-                <option value="middle-aged" data-i18n="middleAged">Middle Aged</option>
-                <option value="elderly" data-i18n="elderly">Elderly</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="pitch" data-i18n="pitch">Pitch</label>
-              <select id="pitch">
-                <option value="" data-i18n="notSpecified">Not specified</option>
-                <option value="very low pitch" data-i18n="veryLow">Very Low</option>
-                <option value="low pitch" data-i18n="low">Low</option>
-                <option value="moderate pitch" data-i18n="moderate">Moderate</option>
-                <option value="high pitch" data-i18n="high">High</option>
-                <option value="very high pitch" data-i18n="veryHigh">Very High</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="style" data-i18n="style">Style</label>
-              <select id="style">
-                <option value="" data-i18n="notSpecified">Not specified</option>
-                <option value="whisper" data-i18n="whisper">Whisper</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="accent" data-i18n="accent">Accent</label>
-            <select id="accent">
-              <option value="" data-i18n="notSpecified">Not specified</option>
-              <option value="american accent" data-i18n="american">American</option>
-              <option value="british accent" data-i18n="british">British</option>
-              <option value="australian accent" data-i18n="australian">Australian</option>
-              <option value="canadian accent" data-i18n="canadian">Canadian</option>
-              <option value="indian accent" data-i18n="indian">Indian</option>
-              <option value="chinese accent" data-i18n="chinese">Chinese</option>
-              <option value="korean accent" data-i18n="korean">Korean</option>
-              <option value="japanese accent" data-i18n="japanese">Japanese</option>
-              <option value="portuguese accent" data-i18n="portuguese">Portuguese</option>
-              <option value="russian accent" data-i18n="russian">Russian</option>
-            </select>
-          </div>
+        <div class="app-header__actions">
+          <div id="local-status" class="local-status" role="status" aria-live="polite"><span class="local-status__dot" aria-hidden="true"></span><span data-i18n="status.localProcessing">Local processing</span></div>
+          <span class="header-divider" aria-hidden="true"></span>
+          <button id="btn-theme" class="icon-button" type="button" aria-label="Toggle theme"><svg class="icon"><use data-theme-use href="assets/lucide-sprite.svg#sun"></use></svg></button>
+          <button id="btn-settings" class="settings-trigger" type="button" aria-label="Settings" data-i18n-aria-label="settings.title" aria-haspopup="dialog" aria-controls="settings-modal"><svg class="icon"><use href="assets/lucide-sprite.svg#settings"></use></svg><span data-i18n="settings.title">Settings</span><svg class="icon icon--sm"><use href="assets/lucide-sprite.svg#chevron-down"></use></svg></button>
         </div>
+      </header>
 
-        <button id="start-dubbing-btn" class="btn btn--primary" disabled>
-          <span>▶</span>
-          <span data-i18n="voiceDesign.generateBtn">Generate Audio</span>
-        </button>
-        <div id="design-error" class="error-msg hidden"></div>
+      <main id="main-content" class="main" tabindex="-1">
+        <section id="tab-design" class="tab-content active" data-page-title="Voice Design" data-page-section="Create voice">
+          <header class="page-header"><div><h1 data-i18n="voiceDesign.title">Voice Design</h1><p data-i18n="voiceDesign.subtitle">Shape a voice by defining its attributes and style, then generate audio.</p></div></header>
+          <div class="workspace-layout">
+            <section class="setup-panel" aria-labelledby="vd-setup-title">
+              <h2 id="vd-setup-title" class="sr-only" data-i18n="voiceDesign.setupTitle">Voice setup</h2>
+              <div class="form-field">
+                <div class="field-label-row"><label for="vd-text" data-i18n="voiceDesign.sampleText">Sample text</label><span class="field-info" data-i18n-tooltip="a11y.sampleTextHelp"><svg class="icon icon--sm" aria-hidden="true"><use href="assets/lucide-sprite.svg#info"></use></svg></span></div>
+                <div class="textarea-shell"><textarea id="vd-text" class="text-input" rows="5" maxlength="500" placeholder="Enter or paste the text you’d like to convert into speech…" data-i18n-placeholder="voiceDesign.textPlaceholder" aria-describedby="vd-text-help vd-text-count"></textarea><span id="vd-text-count" class="character-count">0 / 500</span></div>
+                <p id="vd-text-help" class="field-help" data-i18n="voiceDesign.textHelp">Use a complete sentence for the most natural preview.</p>
+              </div>
+              <div class="form-field"><label for="vd-language" data-i18n="common.language">Language</label><div class="control-with-icon"><svg class="icon" aria-hidden="true"><use href="assets/lucide-sprite.svg#languages"></use></svg><select id="vd-language" aria-describedby="vd-language-help"><option value="" data-i18n="common.loadingLanguages">Loading languages…</option></select></div><p id="vd-language-help" class="field-help" data-i18n="voiceDesign.languageHelp">Choose the language used in your sample text.</p></div>
+              <fieldset class="form-field voice-attributes">
+                <legend data-i18n="voiceDesign.attributes">Voice attributes</legend>
+                <div class="attribute-row"><label for="gender"><svg class="icon" aria-hidden="true"><use href="assets/lucide-sprite.svg#user-round"></use></svg><span data-i18n="voiceDesign.gender">Gender</span></label><select id="gender"><option value="" data-i18n="common.notSpecified">Not specified</option><option value="male" data-i18n="voiceDesign.male">Male</option><option value="female" data-i18n="voiceDesign.female">Female</option></select></div>
+                <div class="attribute-row"><label for="age"><svg class="icon" aria-hidden="true"><use href="assets/lucide-sprite.svg#clock"></use></svg><span data-i18n="voiceDesign.age">Age</span></label><select id="age"><option value="" data-i18n="common.notSpecified">Not specified</option><option value="child" data-i18n="voiceDesign.child">Child</option><option value="teenager" data-i18n="voiceDesign.teenager">Teenager</option><option value="young adult" data-i18n="voiceDesign.youngAdult">Young Adult</option><option value="middle-aged" data-i18n="voiceDesign.middleAged">Middle Aged</option><option value="elderly" data-i18n="voiceDesign.elderly">Elderly</option></select></div>
+                <div class="attribute-row"><label for="pitch"><svg class="icon" aria-hidden="true"><use href="assets/lucide-sprite.svg#audio-waveform"></use></svg><span data-i18n="voiceDesign.pitch">Pitch</span></label><select id="pitch"><option value="" data-i18n="common.notSpecified">Not specified</option><option value="very low pitch" data-i18n="voiceDesign.veryLow">Very Low</option><option value="low pitch" data-i18n="voiceDesign.low">Low</option><option value="moderate pitch" data-i18n="voiceDesign.moderate">Moderate</option><option value="high pitch" data-i18n="voiceDesign.high">High</option><option value="very high pitch" data-i18n="voiceDesign.veryHigh">Very High</option></select></div>
+                <div class="attribute-row"><label for="style"><svg class="icon" aria-hidden="true"><use href="assets/lucide-sprite.svg#sparkles"></use></svg><span data-i18n="voiceDesign.style">Style</span></label><select id="style"><option value="" data-i18n="common.notSpecified">Not specified</option><option value="whisper" data-i18n="voiceDesign.whisper">Whisper</option></select></div>
+                <div class="attribute-row"><label for="accent"><svg class="icon" aria-hidden="true"><use href="assets/lucide-sprite.svg#languages"></use></svg><span data-i18n="voiceDesign.accent">Accent</span></label><select id="accent"><option value="" data-i18n="common.notSpecified">Not specified</option><option value="american accent" data-i18n="voiceDesign.american">American</option><option value="british accent" data-i18n="voiceDesign.british">British</option><option value="australian accent" data-i18n="voiceDesign.australian">Australian</option><option value="canadian accent" data-i18n="voiceDesign.canadian">Canadian</option><option value="indian accent" data-i18n="voiceDesign.indian">Indian</option><option value="chinese accent" data-i18n="voiceDesign.chinese">Chinese</option><option value="korean accent" data-i18n="voiceDesign.korean">Korean</option><option value="japanese accent" data-i18n="voiceDesign.japanese">Japanese</option><option value="portuguese accent" data-i18n="voiceDesign.portuguese">Portuguese</option><option value="russian accent" data-i18n="voiceDesign.russian">Russian</option></select></div>
+              </fieldset>
+              <details class="advanced-disclosure"><summary><span data-i18n="voiceDesign.advanced">Advanced instructions (optional)</span><svg class="icon"><use href="assets/lucide-sprite.svg#chevron-down"></use></svg></summary><div class="advanced-disclosure__body"><label for="custom-instruct" class="sr-only" data-i18n="voiceDesign.advanced">Advanced instructions</label><textarea id="custom-instruct" class="text-input text-input--compact" rows="3" maxlength="300" placeholder="For example: calm, warm and confident" data-i18n-placeholder="voiceDesign.advancedPlaceholder"></textarea></div></details>
+              <button id="start-dubbing-btn" class="btn btn--primary btn--full" type="button" disabled><svg class="icon"><use href="assets/lucide-sprite.svg#audio-waveform"></use></svg><span id="vd-generate-label" data-i18n="voiceDesign.generate">Generate audio</span></button>
+              <div id="design-error" class="notice notice--danger hidden" role="alert"><svg class="icon" aria-hidden="true"><use href="assets/lucide-sprite.svg#circle-x"></use></svg><div><strong data-i18n="common.somethingWrong">Something went wrong</strong><p data-notice-message></p></div><button id="vd-retry-btn" class="btn btn--secondary btn--sm" type="button" data-i18n="common.retry">Retry</button></div>
+            </section>
 
-        <!-- Voice Design Audio Result -->
-        <div id="vd-result-section" class="card hidden">
-          <div class="card__title">
-            <span class="card__title-icon">✅</span>
-            <span data-i18n="voiceCloning.audioReady">Audio Ready</span>
+            <section class="preview-panel" aria-labelledby="vd-preview-title">
+              <h2 id="vd-preview-title" class="sr-only" data-i18n="common.preview">Preview</h2>
+              <div class="result-state-stack" aria-live="polite">
+                <div id="vd-preview-empty" class="result-state result-state--empty"><div class="empty-icon"><svg class="icon"><use href="assets/lucide-sprite.svg#audio-waveform"></use></svg></div><h3 data-i18n="voiceDesign.emptyTitle">Your generated voice will appear here</h3><p data-i18n="voiceDesign.emptyDescription">Add sample text and set your voice attributes, then generate audio to preview your voice.</p><span class="status-chip status-chip--neutral"><span class="status-dot status-dot--success"></span><span data-i18n="status.readyWhenYouAre">Ready when you are</span></span><canvas id="vd-empty-waveform" class="waveform waveform--empty" height="96" aria-hidden="true"></canvas><div class="audio-player audio-player--disabled" aria-hidden="true"><button class="player-play" type="button" disabled><svg class="icon"><use href="assets/lucide-sprite.svg#play"></use></svg></button><span>—:—</span><div class="player-track"></div><svg class="icon"><use href="assets/lucide-sprite.svg#volume-2"></use></svg></div></div>
+                <div id="vd-preview-loading" class="result-state result-state--processing hidden" role="status"><div class="processing-orb"><svg class="icon icon--spin"><use href="assets/lucide-sprite.svg#loader-circle"></use></svg></div><h3 data-i18n="voiceDesign.loadingTitle">Generating your voice</h3><p data-i18n="common.mayTakeMoment">This may take a moment.</p><div class="indeterminate-progress" aria-label="Processing"><span></span></div></div>
+                <div id="vd-preview-error" class="result-state result-state--error hidden" role="alert"><div class="empty-icon empty-icon--danger"><svg class="icon"><use href="assets/lucide-sprite.svg#circle-x"></use></svg></div><h3 data-i18n="voiceDesign.errorTitle">Voice generation failed</h3><p id="vd-preview-error-message"></p><button id="vd-preview-retry-btn" class="btn btn--secondary" type="button"><svg class="icon"><use href="assets/lucide-sprite.svg#rotate-ccw"></use></svg><span data-i18n="common.retry">Retry</span></button></div>
+                <div id="vd-result-section" class="result-state result-state--success hidden"><div class="result-header"><div><span class="status-chip status-chip--success"><svg class="icon icon--sm"><use href="assets/lucide-sprite.svg#circle-check"></use></svg><span data-i18n="status.voiceGenerated">Voice generated</span></span><h3 data-i18n="voiceDesign.resultTitle">Generated voice</h3></div></div><canvas id="vd-result-waveform" class="waveform waveform--result" height="220" aria-label="Generated audio waveform"></canvas><audio id="vd-result-audio" preload="metadata"></audio><div class="audio-player" data-audio-player="vd-result-audio" data-waveform="vd-result-waveform"><button class="player-play" type="button" data-player-action="play" aria-label="Play audio" data-i18n-aria-label="a11y.playAudio"><svg class="icon"><use data-player-icon href="assets/lucide-sprite.svg#play"></use></svg></button><span class="player-time" data-player-elapsed>0:00</span><input class="player-seek" data-player-action="seek" type="range" min="0" max="100" value="0" step="0.1" aria-label="Seek audio" data-i18n-aria-label="a11y.seekAudio"><span class="player-time" data-player-duration>—:—</span><button class="player-volume-button" type="button" data-player-action="mute" aria-label="Mute audio" data-i18n-aria-label="a11y.muteAudio"><svg class="icon"><use data-volume-icon href="assets/lucide-sprite.svg#volume-2"></use></svg></button><input class="player-volume" data-player-action="volume" type="range" min="0" max="1" value="1" step="0.05" aria-label="Volume" data-i18n-aria-label="a11y.volume"></div><div class="result-meta"><span><svg class="icon"><use href="assets/lucide-sprite.svg#languages"></use></svg><span id="vd-result-language">—</span></span><span><svg class="icon"><use href="assets/lucide-sprite.svg#clock"></use></svg><span id="vd-result-duration">—:—</span></span></div><div class="result-actions"><button id="vd-download-btn" class="btn btn--secondary" type="button"><svg class="icon"><use href="assets/lucide-sprite.svg#download"></use></svg><span data-i18n="common.download">Download</span></button><button id="vd-create-another-btn" class="btn btn--secondary btn--accent-outline" type="button"><svg class="icon"><use href="assets/lucide-sprite.svg#refresh-cw"></use></svg><span data-i18n="common.createAnother">Create another</span></button></div></div>
+              </div>
+              <div class="privacy-notice"><svg class="icon"><use href="assets/lucide-sprite.svg#shield-check"></use></svg><div><strong data-i18n="privacy.processedLocally">Processed locally</strong><p data-i18n="privacy.audioDescription">Your audio is generated on this device and never leaves your machine.</p></div></div>
+            </section>
           </div>
-          <audio id="vd-result-audio" class="result-audio" controls></audio>
-          <div class="result-actions">
-            <button id="vd-download-btn" class="btn btn--primary">
-              <span>⬇</span>
-              <span data-i18n="voiceCloning.downloadAudio">Download Audio</span>
-            </button>
-          </div>
-        </div>
-      </div>
+        </section>
 
-      <!-- VOICE CLONING TAB -->
-      <div id="tab-cloning" class="tab-content">
+        <section id="tab-cloning" class="tab-content" data-page-title="Voice Cloning" data-page-section="Create voice">
+          <header class="page-header"><div><h1 data-i18n="voiceCloning.title">Voice Cloning</h1><p data-i18n="voiceCloning.subtitle">Create a reusable voice profile from an audio or video reference, then generate speech.</p></div></header>
+          <div class="workspace-layout workspace-layout--clone">
+            <section class="setup-panel" aria-labelledby="clone-setup-title">
+              <h2 id="clone-setup-title" class="sr-only" data-i18n="voiceCloning.title">Voice Cloning</h2>
+              <ol class="phase-stepper" aria-label="Voice cloning phases"><li id="clone-step-profile" class="phase-step active" aria-current="step"><span>1</span><strong data-i18n="voiceCloning.createProfile">Create voice profile</strong></li><li id="clone-step-synthesis" class="phase-step"><span>2</span><strong data-i18n="voiceCloning.synthesizeSpeech">Synthesize speech</strong></li></ol>
+              <section id="clone-phase-one" class="phase-section" aria-labelledby="clone-phase-one-title">
+                <div class="phase-heading"><div><h3 id="clone-phase-one-title" data-i18n="voiceCloning.reference">Reference audio or video</h3><p id="clone-formats-help" data-i18n="voiceCloning.formats">Audio: WAV, MP3 · Video: MP4, MOV, AVI, MKV, WebM · Up to 500 MB</p></div></div>
+                <button id="ref-audio-dropzone" class="dropzone" type="button" aria-describedby="clone-formats-help"><span class="dropzone__icon"><svg class="icon"><use href="assets/lucide-sprite.svg#upload"></use></svg></span><span class="dropzone__title" data-i18n="common.dropOrBrowse">Drop a file here or browse</span><span class="dropzone__hint" data-i18n="voiceCloning.referenceHint">Use a short, clear clip with minimal background noise.</span><span class="btn btn--secondary btn--sm" aria-hidden="true"><svg class="icon"><use href="assets/lucide-sprite.svg#folder-open"></use></svg><span data-i18n="common.browseFiles">Browse files</span></span></button>
+                <input type="file" id="ref-audio-input" accept="audio/*,video/*" class="sr-only" tabindex="-1" aria-hidden="true">
+                <div id="ref-audio-file-info" class="file-preview file-preview--with-audio hidden"><span class="file-preview__icon"><svg class="icon"><use id="ref-file-icon-use" href="assets/lucide-sprite.svg#file-audio"></use></svg></span><div class="file-preview__body"><strong id="ref-audio-filename"></strong><span><span id="ref-audio-filesize"></span><span id="ref-audio-duration"></span></span></div><button id="ref-audio-replace" class="btn btn--secondary btn--sm" type="button"><svg class="icon"><use href="assets/lucide-sprite.svg#refresh-cw"></use></svg><span data-i18n="common.replace">Replace</span></button><button id="ref-audio-remove" class="icon-button" type="button" aria-label="Remove reference" data-tooltip="Remove"><svg class="icon"><use href="assets/lucide-sprite.svg#trash-2"></use></svg></button><audio id="ref-audio-preview" preload="metadata"></audio><div class="audio-player audio-player--compact" data-audio-player="ref-audio-preview"><button class="player-play" type="button" data-player-action="play" aria-label="Play reference audio" data-i18n-aria-label="a11y.playAudio"><svg class="icon"><use data-player-icon href="assets/lucide-sprite.svg#play"></use></svg></button><span class="player-time" data-player-elapsed>0:00</span><input class="player-seek" data-player-action="seek" type="range" min="0" max="100" value="0" step="0.1" aria-label="Seek reference audio" data-i18n-aria-label="a11y.seekAudio"><span class="player-time" data-player-duration>—:—</span><button class="player-volume-button" type="button" data-player-action="mute" aria-label="Mute reference audio" data-i18n-aria-label="a11y.muteAudio"><svg class="icon"><use data-volume-icon href="assets/lucide-sprite.svg#volume-2"></use></svg></button><input class="player-volume" data-player-action="volume" type="range" min="0" max="1" value="1" step="0.05" aria-label="Reference audio volume" data-i18n-aria-label="a11y.volume"></div></div>
+                <div class="record-section"><p class="record-divider"><span data-i18n="common.orRecord">or record a reference</span></p><canvas id="waveform-canvas" class="waveform-canvas" height="92" aria-label="Live microphone waveform"></canvas><div class="recorder-controls"><button id="record-audio-btn" class="record-button" type="button" aria-describedby="record-help"><svg class="icon"><use href="assets/lucide-sprite.svg#mic"></use></svg><span class="push-to-talk__text" data-i18n="voiceCloning.holdToRecord">Hold to record</span></button><button id="stop-recording-btn" class="btn btn--danger hidden" type="button"><svg class="icon"><use href="assets/lucide-sprite.svg#circle-stop"></use></svg><span data-i18n="voiceCloning.stopRecording">Stop recording</span></button><span id="recording-timer" class="recording-timer hidden">0:00</span></div><p id="record-help" class="field-help" data-i18n="voiceCloning.recordHelp">Hold the button to record, or use Enter or Space and the visible Stop button.</p><p id="recorder-status" class="sr-only" aria-live="polite"></p><div id="recorder-error" class="notice notice--danger hidden" role="alert"><svg class="icon"><use href="assets/lucide-sprite.svg#triangle-alert"></use></svg><p data-notice-message></p></div></div>
+                <button id="create-voice-profile-btn" class="btn btn--primary btn--full" type="button" disabled><svg class="icon"><use href="assets/lucide-sprite.svg#audio-waveform"></use></svg><span id="create-profile-label" data-i18n="voiceCloning.createProfile">Create voice profile</span></button>
+                <div id="clone-profile-error" class="notice notice--danger hidden" role="alert"><svg class="icon"><use href="assets/lucide-sprite.svg#circle-x"></use></svg><div><strong data-i18n="voiceCloning.profileErrorTitle">Couldn’t create the voice profile</strong><p data-notice-message></p></div><button id="clone-profile-retry-btn" class="btn btn--secondary btn--sm" type="button" data-i18n="common.retry">Retry</button></div>
+              </section>
+              <section id="clone-phase-two" class="phase-section phase-section--locked" aria-labelledby="clone-phase-two-title"><div class="phase-heading"><div><h3 id="clone-phase-two-title"><span class="phase-number">2</span><span data-i18n="voiceCloning.synthesizeSpeech">Synthesize speech</span></h3><p id="clone-profile-id"></p></div><span id="clone-phase-lock" class="status-chip status-chip--neutral"><svg class="icon icon--sm"><use href="assets/lucide-sprite.svg#lock"></use></svg><span data-i18n="status.locked">Locked</span></span></div><fieldset id="clone-synthesis-fields" disabled><div class="form-field"><div class="field-label-row"><label for="synthesize-text" data-i18n="voiceCloning.textToSynthesize">Text to synthesize</label><span id="clone-text-count" class="character-count character-count--inline">0 / 500</span></div><textarea id="synthesize-text" class="text-input" rows="4" maxlength="500" placeholder="Enter or paste the text you’d like to synthesize…" data-i18n-placeholder="voiceCloning.textPlaceholder"></textarea></div><div class="form-field"><label for="text-language" data-i18n="common.language">Language</label><div class="control-with-icon"><svg class="icon"><use href="assets/lucide-sprite.svg#languages"></use></svg><select id="text-language"><option value="" data-i18n="common.loadingLanguages">Loading languages…</option></select></div></div><button id="clone-voice-btn" class="btn btn--primary btn--full" type="button" disabled><svg class="icon"><use href="assets/lucide-sprite.svg#audio-waveform"></use></svg><span id="clone-synthesize-label" data-i18n="voiceCloning.synthesizeSpeech">Synthesize speech</span></button></fieldset><div id="clone-voice-error" class="notice notice--danger hidden" role="alert"><svg class="icon"><use href="assets/lucide-sprite.svg#circle-x"></use></svg><div><strong data-i18n="voiceCloning.synthesisErrorTitle">Speech synthesis failed</strong><p data-notice-message></p></div><button id="clone-synthesis-retry-btn" class="btn btn--secondary btn--sm" type="button" data-i18n="common.retry">Retry</button></div></section>
+            </section>
+            <section class="preview-panel" aria-labelledby="clone-preview-title"><h2 id="clone-preview-title" class="sr-only" data-i18n="common.preview">Preview</h2><div class="result-state-stack" aria-live="polite">
+              <div id="clone-preview-empty" class="result-state result-state--empty"><div class="empty-icon"><svg class="icon"><use href="assets/lucide-sprite.svg#user-round"></use></svg></div><h3 data-i18n="voiceCloning.emptyTitle">Choose a voice reference</h3><p data-i18n="voiceCloning.emptyDescription">Upload audio or video, or record a short clip to create a reusable voice profile.</p><span class="status-chip status-chip--neutral"><span class="status-dot"></span><span data-i18n="status.noReference">No reference selected</span></span></div>
+              <div id="clone-preview-reference" class="result-state hidden"><div class="result-header"><div><span class="status-chip status-chip--neutral"><span class="status-dot status-dot--accent"></span><span data-i18n="status.referenceSelected">Reference selected</span></span><h3 data-i18n="voiceCloning.profilePreview">Voice profile preview</h3></div></div><canvas id="ref-preview-waveform" class="waveform waveform--reference" height="150" aria-label="Reference audio waveform"></canvas><div class="source-preview-meta"><strong id="clone-preview-filename">—</strong><span id="clone-preview-filemeta">—</span></div><div class="result-state__subtle"><div class="empty-icon"><svg class="icon"><use href="assets/lucide-sprite.svg#lock"></use></svg></div><h4 data-i18n="voiceCloning.createToEnable">Create the voice profile to enable synthesis</h4><span class="status-chip status-chip--neutral"><svg class="icon icon--sm"><use href="assets/lucide-sprite.svg#lock"></use></svg><span data-i18n="status.phaseTwoLocked">Phase 2 locked</span></span></div></div>
+              <div id="clone-preview-processing" class="result-state result-state--processing hidden" role="status"><div class="processing-orb"><svg class="icon icon--spin"><use href="assets/lucide-sprite.svg#loader-circle"></use></svg></div><h3 id="clone-processing-title" data-i18n="voiceCloning.preparingProfile">Preparing your voice profile</h3><p id="clone-processing-description" data-i18n="common.mayTakeMoment">This may take a moment.</p><div class="indeterminate-progress"><span></span></div></div>
+              <div id="clone-preview-profile" class="result-state hidden"><div class="result-header"><div><span class="status-chip status-chip--success"><svg class="icon icon--sm"><use href="assets/lucide-sprite.svg#circle-check"></use></svg><span data-i18n="status.profileReady">Voice profile ready</span></span><h3 data-i18n="voiceCloning.profileReadyTitle">Your voice profile is ready</h3></div></div><div class="profile-ready-visual"><div class="empty-icon empty-icon--success"><svg class="icon"><use href="assets/lucide-sprite.svg#audio-waveform"></use></svg></div><p data-i18n="voiceCloning.profileReadyDescription">Add text in phase 2 to generate speech with this voice.</p></div></div>
+              <div id="clone-preview-error" class="result-state result-state--error hidden" role="alert"><div class="empty-icon empty-icon--danger"><svg class="icon"><use href="assets/lucide-sprite.svg#circle-x"></use></svg></div><h3 id="clone-preview-error-title" data-i18n="voiceCloning.profileErrorTitle">Couldn’t create the voice profile</h3><p id="clone-preview-error-message"></p><button id="clone-preview-retry-btn" class="btn btn--secondary" type="button"><svg class="icon"><use href="assets/lucide-sprite.svg#rotate-ccw"></use></svg><span data-i18n="common.retry">Retry</span></button></div>
+              <div id="audio-result-section" class="result-state result-state--success hidden"><div class="result-header"><div><span class="status-chip status-chip--success"><svg class="icon icon--sm"><use href="assets/lucide-sprite.svg#circle-check"></use></svg><span data-i18n="status.audioReady">Audio ready</span></span><h3 data-i18n="voiceCloning.resultTitle">Cloned voice result</h3></div></div><canvas id="clone-result-waveform" class="waveform waveform--result" height="220" aria-label="Cloned voice audio waveform"></canvas><audio id="result-audio" preload="metadata"></audio><div class="audio-player" data-audio-player="result-audio" data-waveform="clone-result-waveform"><button class="player-play" type="button" data-player-action="play" aria-label="Play audio" data-i18n-aria-label="a11y.playAudio"><svg class="icon"><use data-player-icon href="assets/lucide-sprite.svg#play"></use></svg></button><span class="player-time" data-player-elapsed>0:00</span><input class="player-seek" data-player-action="seek" type="range" min="0" max="100" value="0" step="0.1" aria-label="Seek audio" data-i18n-aria-label="a11y.seekAudio"><span class="player-time" data-player-duration>—:—</span><button class="player-volume-button" type="button" data-player-action="mute" aria-label="Mute audio" data-i18n-aria-label="a11y.muteAudio"><svg class="icon"><use data-volume-icon href="assets/lucide-sprite.svg#volume-2"></use></svg></button><input class="player-volume" data-player-action="volume" type="range" min="0" max="1" value="1" step="0.05" aria-label="Volume" data-i18n-aria-label="a11y.volume"></div><div class="result-meta"><span><svg class="icon"><use href="assets/lucide-sprite.svg#languages"></use></svg><span id="clone-result-language">—</span></span><span><svg class="icon"><use href="assets/lucide-sprite.svg#clock"></use></svg><span id="clone-result-duration">—:—</span></span></div><div class="result-actions"><button id="download-audio-btn" class="btn btn--secondary" type="button"><svg class="icon"><use href="assets/lucide-sprite.svg#download"></use></svg><span data-i18n="common.download">Download</span></button><button id="clone-use-again-btn" class="btn btn--secondary btn--accent-outline" type="button"><svg class="icon"><use href="assets/lucide-sprite.svg#refresh-cw"></use></svg><span data-i18n="voiceCloning.useAgain">Use profile again</span></button><button id="clone-new-voice-btn" class="btn btn--ghost" type="button" data-i18n="voiceCloning.newProfile">New profile</button></div></div>
+            </div><div class="privacy-notice"><svg class="icon"><use href="assets/lucide-sprite.svg#shield-check"></use></svg><div><strong data-i18n="privacy.processedLocally">Processed locally</strong><p data-i18n="privacy.referenceDescription">Your reference stays on this device and never leaves your machine.</p></div></div></section>
+          </div>
+        </section>
 
-        <div class="card">
-          <div class="card__title">
-            <span class="card__title-icon">🎙</span>
-            <span data-i18n="uploadRefForClone">Upload Audio or Video for Cloning</span>
+        <section id="tab-transcribe" class="tab-content" data-page-title="Transcription" data-page-section="Workspace">
+          <header class="page-header"><div><h1 data-i18n="transcription.title">Transcription</h1><p data-i18n="transcription.subtitle">Turn audio or video into searchable text with timestamps.</p></div></header>
+          <div class="workspace-layout workspace-layout--transcription">
+            <section class="setup-panel" aria-labelledby="transcribe-setup-title"><h2 id="transcribe-setup-title" data-i18n="transcription.source">Source</h2><div class="source-tabs" role="tablist" aria-label="Transcription source"><button id="transcribe-mode-file" class="source-tab active" type="button" role="tab" aria-selected="true" aria-controls="transcribe-file-panel"><svg class="icon"><use href="assets/lucide-sprite.svg#upload"></use></svg><span data-i18n="transcription.uploadFile">Upload file</span></button><button id="transcribe-mode-url" class="source-tab" type="button" role="tab" aria-selected="false" aria-controls="transcribe-url-panel"><svg class="icon"><use href="assets/lucide-sprite.svg#link"></use></svg><span data-i18n="transcription.pasteUrl">Paste URL</span></button></div>
+              <div id="transcribe-file-panel" class="source-panel" role="tabpanel" aria-labelledby="transcribe-mode-file"><button id="transcribe-dropzone" class="dropzone dropzone--compact" type="button" aria-describedby="transcribe-formats-help"><span class="dropzone__icon"><svg class="icon"><use href="assets/lucide-sprite.svg#upload"></use></svg></span><span class="dropzone__title" data-i18n="common.dropOrBrowse">Drop a file here or browse</span><span class="btn btn--secondary btn--sm" aria-hidden="true"><svg class="icon"><use href="assets/lucide-sprite.svg#folder-open"></use></svg><span data-i18n="common.browseFiles">Browse files</span></span></button><input type="file" id="transcribe-file-input" accept="audio/*,video/*" class="sr-only" tabindex="-1" aria-hidden="true"><div id="transcribe-file-info" class="file-preview file-preview--with-audio hidden"><span class="file-preview__icon"><svg class="icon"><use id="transcribe-file-icon-use" href="assets/lucide-sprite.svg#file-video"></use></svg></span><div class="file-preview__body"><strong id="transcribe-filename"></strong><span><span id="transcribe-filesize"></span><span id="transcribe-fileduration"></span></span></div><button id="transcribe-replace" class="btn btn--secondary btn--sm" type="button"><svg class="icon"><use href="assets/lucide-sprite.svg#refresh-cw"></use></svg><span data-i18n="common.replace">Replace</span></button><button id="transcribe-remove" class="icon-button" type="button" aria-label="Remove file" data-i18n-aria-label="a11y.removeFile"><svg class="icon"><use href="assets/lucide-sprite.svg#trash-2"></use></svg></button><audio id="transcribe-audio-preview" preload="metadata"></audio><div class="audio-player audio-player--compact" data-audio-player="transcribe-audio-preview"><button class="player-play" type="button" data-player-action="play" aria-label="Play source audio" data-i18n-aria-label="a11y.playAudio"><svg class="icon"><use data-player-icon href="assets/lucide-sprite.svg#play"></use></svg></button><span class="player-time" data-player-elapsed>0:00</span><input class="player-seek" data-player-action="seek" type="range" min="0" max="100" value="0" step="0.1" aria-label="Seek source audio" data-i18n-aria-label="a11y.seekAudio"><span class="player-time" data-player-duration>—:—</span></div></div><p id="transcribe-formats-help" class="field-help" data-i18n="transcription.formats">Supported: MP3, WAV, MP4, MOV, AVI, MKV, WebM</p><div class="record-section record-section--transcription"><p class="record-divider"><span data-i18n="transcription.orRecord">or record audio</span></p><canvas id="transcribe-waveform-canvas" class="waveform-canvas" height="92" aria-label="Live transcription recording waveform"></canvas><div class="recorder-controls"><button id="transcribe-record-audio-btn" class="record-button" type="button" aria-describedby="transcribe-record-help" aria-pressed="false"><svg class="icon"><use href="assets/lucide-sprite.svg#mic"></use></svg><span class="push-to-talk__text" data-i18n="transcription.holdToRecord">Hold to record</span></button><button id="transcribe-stop-recording-btn" class="btn btn--danger hidden" type="button"><svg class="icon"><use href="assets/lucide-sprite.svg#circle-stop"></use></svg><span data-i18n="transcription.stopRecording">Stop recording</span></button><span id="transcribe-recording-timer" class="recording-timer hidden">0:00</span></div><p id="transcribe-record-help" class="field-help" data-i18n="transcription.recordHelp">Hold the button to record, or use Enter or Space and the visible Stop button.</p><p id="transcribe-recorder-status" class="sr-only" aria-live="polite"></p><div id="transcribe-recorder-error" class="notice notice--danger hidden" role="alert"><svg class="icon"><use href="assets/lucide-sprite.svg#triangle-alert"></use></svg><p data-notice-message></p></div></div></div>
+              <div id="transcribe-url-panel" class="source-panel hidden" role="tabpanel" aria-labelledby="transcribe-mode-url"><div class="form-field"><label for="transcribe-url" data-i18n="transcription.sourceUrl">Media URL</label><div class="control-with-icon"><svg class="icon"><use href="assets/lucide-sprite.svg#link"></use></svg><input type="url" id="transcribe-url" class="text-input text-input--single" placeholder="YouTube, TikTok or Instagram URL" data-i18n-placeholder="transcription.urlPlaceholder" aria-describedby="transcribe-url-help"></div><p id="transcribe-url-help" class="field-help" data-i18n="transcription.urlHelp">Paste a supported public media URL.</p></div></div>
+              <div class="form-field"><label for="transcribe-language" data-i18n="common.language">Language</label><div class="control-with-icon"><svg class="icon"><use href="assets/lucide-sprite.svg#languages"></use></svg><select id="transcribe-language"><option value="" data-i18n="common.autoDetect">Auto-detect</option></select></div><p class="field-help" data-i18n="transcription.languageHelp">Auto-detect is recommended when you are unsure.</p></div>
+              <button id="start-transcribe-btn" class="btn btn--primary btn--full" type="button" disabled><svg class="icon"><use href="assets/lucide-sprite.svg#audio-waveform"></use></svg><span id="transcribe-start-label" data-i18n="transcription.start">Start transcription</span></button><div id="transcribe-error" class="notice notice--danger hidden" role="alert"><svg class="icon"><use href="assets/lucide-sprite.svg#circle-x"></use></svg><div><strong data-i18n="transcription.errorTitle">Transcription failed</strong><p data-notice-message></p></div><button id="transcribe-retry-btn" class="btn btn--secondary btn--sm" type="button" data-i18n="common.retry">Retry</button></div>
+            </section>
+            <section class="preview-panel" aria-labelledby="transcribe-preview-title"><h2 id="transcribe-preview-title" class="sr-only" data-i18n="transcription.transcript">Transcript</h2><div class="result-state-stack" aria-live="polite">
+              <div id="transcribe-empty" class="result-state result-state--empty"><div class="empty-icon"><svg class="icon"><use href="assets/lucide-sprite.svg#file-text"></use></svg></div><h3 data-i18n="transcription.emptyTitle">Your transcript will appear here</h3><p data-i18n="transcription.emptyDescription">Choose a file or supported URL, then start transcription.</p><span class="status-chip status-chip--neutral"><span class="status-dot status-dot--success"></span><span data-i18n="status.readyWhenYouAre">Ready when you are</span></span></div>
+              <div id="transcribe-progress" class="result-state result-state--processing hidden" role="status"><div class="processing-orb"><svg class="icon icon--spin"><use href="assets/lucide-sprite.svg#loader-circle"></use></svg></div><h3 data-i18n="transcription.processingTitle">Transcribing audio…</h3><p id="transcribe-status" data-i18n="transcription.processingDescription">VoiceLabs is turning your source into timestamped text.</p><div class="indeterminate-progress"><span id="transcribe-bar"></span></div></div>
+              <div id="transcribe-preview-error" class="result-state result-state--error hidden" role="alert"><div class="empty-icon empty-icon--danger"><svg class="icon"><use href="assets/lucide-sprite.svg#circle-x"></use></svg></div><h3 data-i18n="transcription.errorTitle">Transcription failed</h3><p id="transcribe-preview-error-message"></p><button id="transcribe-preview-retry-btn" class="btn btn--secondary" type="button"><svg class="icon"><use href="assets/lucide-sprite.svg#rotate-ccw"></use></svg><span data-i18n="common.retry">Retry</span></button></div>
+              <div id="transcribe-result" class="transcript-result hidden"><div class="result-header transcript-result__header"><div><span class="status-chip status-chip--success"><svg class="icon icon--sm"><use href="assets/lucide-sprite.svg#circle-check"></use></svg><span data-i18n="status.transcriptionComplete">Transcription complete</span></span><h3 data-i18n="transcription.transcript">Transcript</h3></div><div class="result-actions result-actions--top"><button id="transcribe-copy-btn" class="btn btn--primary btn--auto" type="button"><svg class="icon"><use href="assets/lucide-sprite.svg#copy"></use></svg><span data-copy-label data-i18n="transcription.copyText">Copy text</span></button><button id="transcribe-new-btn" class="btn btn--secondary btn--auto" type="button"><svg class="icon"><use href="assets/lucide-sprite.svg#refresh-cw"></use></svg><span data-i18n="transcription.new">New transcription</span></button></div></div><div class="transcribe-info"><span><svg class="icon"><use href="assets/lucide-sprite.svg#languages"></use></svg><span id="transcribe-language-badge">—</span></span><span><svg class="icon"><use href="assets/lucide-sprite.svg#clock"></use></svg><span id="transcribe-duration">—</span></span><span><svg class="icon"><use href="assets/lucide-sprite.svg#file-video"></use></svg><span id="transcribe-source-name">—</span></span><span id="transcribe-speakers-count" class="hidden"></span></div><div id="transcribe-copy-feedback" class="copy-feedback hidden" role="status"><svg class="icon icon--sm"><use href="assets/lucide-sprite.svg#circle-check"></use></svg><span data-i18n="transcription.copied">Copied</span></div><div class="transcript-section"><h4 data-i18n="transcription.fullTranscript">Full transcript</h4><div class="transcribe-text" id="transcribe-text"></div></div><div class="transcript-section"><h4 data-i18n="transcription.timestampSegments">Timestamp segments</h4><div class="transcribe-segments" id="transcribe-segments"></div></div></div>
+            </div><div class="privacy-notice"><svg class="icon"><use href="assets/lucide-sprite.svg#shield-check"></use></svg><div><strong data-i18n="privacy.processedLocally">Processed locally</strong><p data-i18n="privacy.mediaDescription">Your media is processed on this device and never leaves your machine.</p></div></div></section>
           </div>
-          <div id="ref-audio-dropzone" class="dropzone">
-            <div class="dropzone__icon">🎙</div>
-            <p class="dropzone__text" data-i18n="dragDropRefClone">Drag & drop audio or video file for voice cloning</p>
-            <div class="dropzone__formats">
-              <span class="dropzone__format-tag dropzone__format-tag--audio">🎵 Audio</span>
-              <span class="dropzone__format-tag dropzone__format-tag--video">🎬 Video</span>
-            </div>
-            <p class="dropzone__hint" data-i18n="refCloneHint">Audio: WAV, MP3 — Video: MP4, MOV, AVI, MKV, WebM</p>
-            <div id="ref-audio-file-info" class="dropzone__file hidden">
-              <div class="dropzone__file-icon">🎙</div>
-              <span class="dropzone__file-name" id="ref-audio-filename"></span>
-              <span class="dropzone__file-size" id="ref-audio-filesize"></span>
-              <button class="dropzone__file-remove" id="ref-audio-remove">×</button>
-            </div>
-          </div>
-          <input type="file" id="ref-audio-input" accept="audio/*,video/*" class="hidden">
-          <div class="record-section">
-            <div class="record-divider">
-              <span>or hold to record</span>
-            </div>
-            <div class="push-to-talk">
-              <canvas id="waveform-canvas" class="waveform-canvas"></canvas>
-              <button id="record-audio-btn" class="push-to-talk__btn">
-                <svg class="push-to-talk__icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                  <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                </svg>
-                <span class="push-to-talk__text" data-i18n="voiceCloning.holdToRecord">Hold to Record</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        </section>
 
-        <div class="card">
-          <div class="card__title">
-            <span class="card__title-icon">📝</span>
-            <span data-i18n="voiceCloning.textMode">Text</span>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="text-language" data-i18n="voiceCloning.textLanguage">Text Language</label>
-              <select id="text-language">
-                <option value="" data-i18n="loadingLangs">Loading languages...</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <textarea id="synthesize-text" class="text-input" rows="4" placeholder="Enter text to synthesize..." data-i18n-placeholder="voiceCloning.enterText"></textarea>
-          </div>
-          <button id="clone-voice-btn" class="btn btn--primary" disabled>
-            <span>🎙</span>
-            <span data-i18n="voiceCloning.synthesizeBtn">Synthesize</span>
-          </button>
-          <div id="clone-voice-error" class="error-msg hidden"></div>
-        </div>
-
-        <!-- Audio Result -->
-        <div id="audio-result-section" class="card hidden">
-          <div class="card__title">
-            <span class="card__title-icon">✅</span>
-            <span data-i18n="voiceCloning.audioReady">Audio Ready</span>
-          </div>
-          <audio id="result-audio" class="result-audio" controls></audio>
-          <div class="result-actions">
-            <button id="download-audio-btn" class="btn btn--primary">
-              <span>⬇</span>
-              <span data-i18n="voiceCloning.downloadAudio">Download Audio</span>
-            </button>
-            <button id="clone-new-voice-btn" class="btn btn--ghost">
-              <span>↻</span>
-              <span data-i18n="voiceCloning.cloneNewVoice">Clone New Voice</span>
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- TRANSCRIBE TAB -->
-      <div id="tab-transcribe" class="tab-content">
-
-        <div class="card">
-          <div class="card__title">
-            <span class="card__title-icon">🎬</span>
-            <span>Transcribe Audio/Video</span>
-          </div>
-          <div id="transcribe-dropzone" class="dropzone">
-            <div class="dropzone__icon">📁</div>
-            <p class="dropzone__text">Drag & drop audio or video file</p>
-            <p class="dropzone__hint">Supported: MP3, WAV, MP4, MOV, AVI, MKV, WebM</p>
-            <div id="transcribe-file-info" class="dropzone__file hidden">
-              <div class="dropzone__file-icon">🎙</div>
-              <span class="dropzone__file-name" id="transcribe-filename"></span>
-              <span class="dropzone__file-size" id="transcribe-filesize"></span>
-              <button class="dropzone__file-remove" id="transcribe-remove">×</button>
-            </div>
-          </div>
-          <input type="file" id="transcribe-file-input" accept="audio/*,video/*" class="hidden">
-        </div>
-
-        <div class="card">
-          <div class="card__title">
-            <span class="card__title-icon">🔗</span>
-            <span>Or paste a URL</span>
-          </div>
-          <div class="form-group">
-            <input type="url" id="transcribe-url" class="text-input" placeholder="YouTube, TikTok, or Instagram URL...">
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card__title">
-            <span class="card__title-icon">⚙️</span>
-            <span>Options</span>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="transcribe-language">Language (auto-detect if empty)</label>
-              <select id="transcribe-language">
-                <option value="">Auto-detect</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="checkbox-label">
-              <input type="checkbox" id="transcribe-diarization" disabled>
-              <span>Speaker Diarization (planned)</span>
-            </label>
-          </div>
-        </div>
-
-        <button id="start-transcribe-btn" class="btn btn--primary" disabled>
-          <span>▶</span>
-          <span>Start Transcription</span>
-        </button>
-        <div id="transcribe-error" class="error-msg hidden"></div>
-
-        <!-- Transcription Progress -->
-        <div id="transcribe-progress" class="card hidden">
-          <div class="card__title">
-            <span class="card__title-icon">⏳</span>
-            <span>Transcribing...</span>
-          </div>
-          <div class="progress">
-            <div class="progress__bar-wrap">
-              <div id="transcribe-bar" class="progress__bar"></div>
-            </div>
-            <p id="transcribe-status" class="progress__text">Preparing...</p>
-          </div>
-        </div>
-
-        <!-- Transcription Result -->
-        <div id="transcribe-result" class="card hidden">
-          <div class="card__title">
-            <span class="card__title-icon">✅</span>
-            <span>Transcription Complete</span>
-          </div>
-          <div class="transcribe-info">
-            <span class="badge" id="transcribe-language-badge">EN</span>
-            <span class="transcribe-duration" id="transcribe-duration"></span>
-            <span class="transcribe-speakers" id="transcribe-speakers-count"></span>
-          </div>
-          <div class="transcribe-text" id="transcribe-text"></div>
-          <div class="transcribe-segments" id="transcribe-segments"></div>
-          <div class="result-actions">
-            <button id="transcribe-copy-btn" class="btn btn--primary">
-              <span>📋</span>
-              <span>Copy Text</span>
-            </button>
-            <button id="transcribe-new-btn" class="btn btn--ghost">
-              <span>↻</span>
-              <span>New Transcription</span>
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- PROGRESS -->
-      <div id="progress-section" class="card hidden">
-        <div class="card__title">
-          <span class="card__title-icon">⏳</span>
-          <span id="progress-title" data-i18n="processing">Processing</span>
-        </div>
-        <div class="progress">
-          <div class="progress__bar-wrap">
-            <div id="progress-bar" class="progress__bar"></div>
-          </div>
-          <p id="progress-text" class="progress__text">Starting...</p>
-        </div>
-        <div class="steps">
-          <div class="step" data-step="extract">
-            <div class="step__icon">1</div>
-            <span class="step__label" data-i18n="stepExtract">Extract</span>
-          </div>
-          <div class="step" data-step="transcribe">
-            <div class="step__icon">2</div>
-            <span class="step__label" data-i18n="stepTranscribe">Transcribe</span>
-          </div>
-          <div class="step" data-step="synthesize">
-            <div class="step__icon">3</div>
-            <span class="step__label" data-i18n="stepSynthesize">Synthesize</span>
-          </div>
-          <div class="step" data-step="merge">
-            <div class="step__icon">4</div>
-            <span class="step__label" data-i18n="stepMerge">Merge</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- RESULT -->
-      <div id="result-section" class="card hidden">
-        <div class="card__title">
-          <span class="card__title-icon">✅</span>
-          <span data-i18n="dubbingComplete">Dubbing Complete</span>
-        </div>
-        <video id="result-video" class="result-video" controls></video>
-        <div class="result-actions">
-          <button id="download-btn" class="btn btn--primary">
-            <span>⬇</span>
-            <span data-i18n="downloadVideo">Download Dubbed Video</span>
-          </button>
-          <button id="new-job-btn" class="btn btn--ghost">
-            <span>↻</span>
-            <span data-i18n="newJob">New Job</span>
-          </button>
-        </div>
-      </div>
-
-    </main>
-  </div>
-
-  <!-- SETTINGS MODAL -->
-  <div id="settings-modal" class="modal-overlay">
-    <div class="modal">
-      <div class="modal__header">
-        <span class="modal__title" data-i18n="settings">Settings</span>
-        <button id="modal-close" class="modal__close">×</button>
-      </div>
-      <div class="modal__body">
-        <div class="setting-row">
-          <div>
-            <div class="setting-row__label" data-i18n="theme">Theme</div>
-          </div>
-          <div class="theme-selector">
-            <button class="theme-btn" data-theme-value="light">
-              <span>☀</span>
-              <span data-i18n="lightTheme">Light</span>
-            </button>
-            <button class="theme-btn" data-theme-value="dark">
-              <span>🌙</span>
-              <span data-i18n="darkTheme">Dark</span>
-            </button>
-            <button class="theme-btn" data-theme-value="system">
-              <span>💻</span>
-              <span data-i18n="systemTheme">System</span>
-            </button>
-          </div>
-        </div>
-        <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:10px;">
-          <div>
-            <div class="setting-row__label" data-i18n="interfaceLanguage">Interface Language</div>
-          </div>
-          <div class="lang-picker">
-            <div class="lang-option" data-lang-value="en">
-              <span class="lang-option__flag">🇺🇸</span>
-              <span class="lang-option__name">English</span>
-              <span class="lang-option__check">✓</span>
-            </div>
-            <div class="lang-option" data-lang-value="ru">
-              <span class="lang-option__flag">🇷🇺</span>
-              <span class="lang-option__name">Русский</span>
-              <span class="lang-option__check">✓</span>
-            </div>
-            <div class="lang-option" data-lang-value="az">
-              <span class="lang-option__flag">🇦🇿</span>
-              <span class="lang-option__name">Azərbaycan</span>
-              <span class="lang-option__check">✓</span>
-            </div>
-          </div>
-        </div>
-      </div>
+        <section id="tab-jobs" class="tab-content" data-page-title="Recent Jobs" data-page-section="Workspace"><header class="page-header page-header--actions"><div><h1 data-i18n="jobs.title">Recent Jobs</h1><p data-i18n="jobs.subtitle">Your locally persisted voice and transcription activity.</p></div><button class="btn btn--primary btn--auto" type="button" data-navigate="design"><svg class="icon"><use href="assets/lucide-sprite.svg#sparkles"></use></svg><span data-i18n="jobs.startWorkflow">Start a workflow</span></button></header><div class="content-surface"><div class="filter-chips" role="group" aria-label="Filter jobs"><button class="filter-chip active" type="button" data-job-filter="all" aria-pressed="true" data-i18n="jobs.all">All</button><button class="filter-chip" type="button" data-job-filter="voice_design" aria-pressed="false" data-i18n="nav.voiceDesign">Voice Design</button><button class="filter-chip" type="button" data-job-filter="voice_cloning" aria-pressed="false" data-i18n="nav.voiceCloning">Voice Cloning</button><button class="filter-chip" type="button" data-job-filter="transcription" aria-pressed="false" data-i18n="nav.transcription">Transcription</button></div><div id="jobs-loading" class="collection-state"><svg class="icon icon--spin"><use href="assets/lucide-sprite.svg#loader-circle"></use></svg><p data-i18n="jobs.loading">Loading recent jobs…</p></div><div id="jobs-error" class="collection-state hidden" role="alert"><svg class="icon collection-state__icon collection-state__icon--danger"><use href="assets/lucide-sprite.svg#triangle-alert"></use></svg><h2 data-i18n="jobs.errorTitle">Couldn’t load recent jobs</h2><p data-notice-message></p><button id="jobs-retry" class="btn btn--secondary" type="button"><svg class="icon"><use href="assets/lucide-sprite.svg#rotate-ccw"></use></svg><span data-i18n="common.retry">Retry</span></button></div><div id="jobs-empty" class="collection-state hidden"><svg class="icon collection-state__icon"><use href="assets/lucide-sprite.svg#history"></use></svg><h2 data-i18n="jobs.emptyTitle">No recent jobs yet</h2><p data-i18n="jobs.emptyDescription">Completed voice and transcription jobs will appear here.</p><button class="btn btn--primary btn--auto" type="button" data-navigate="design" data-i18n="jobs.startWorkflow">Start a workflow</button></div><div id="jobs-list" class="jobs-list hidden" aria-live="polite"></div></div></section>
+        <section id="tab-profiles" class="tab-content" data-page-title="Voice Profiles" data-page-section="Workspace"><header class="page-header page-header--actions"><div><h1 data-i18n="profiles.title">Voice Profiles</h1><p data-i18n="profiles.subtitle">Reusable voices created from your reference recordings.</p></div><button class="btn btn--primary btn--auto" type="button" data-navigate="cloning"><svg class="icon"><use href="assets/lucide-sprite.svg#mic"></use></svg><span data-i18n="profiles.cloneNew">Clone a new voice</span></button></header><div class="content-surface"><div id="profiles-loading" class="collection-state"><svg class="icon icon--spin"><use href="assets/lucide-sprite.svg#loader-circle"></use></svg><p data-i18n="profiles.loading">Loading voice profiles…</p></div><div id="profiles-error" class="collection-state hidden" role="alert"><svg class="icon collection-state__icon collection-state__icon--danger"><use href="assets/lucide-sprite.svg#triangle-alert"></use></svg><h2 data-i18n="profiles.errorTitle">Couldn’t load voice profiles</h2><p data-notice-message></p><button id="profiles-retry" class="btn btn--secondary" type="button"><svg class="icon"><use href="assets/lucide-sprite.svg#rotate-ccw"></use></svg><span data-i18n="common.retry">Retry</span></button></div><div id="profiles-empty" class="collection-state hidden"><svg class="icon collection-state__icon"><use href="assets/lucide-sprite.svg#users-round"></use></svg><h2 data-i18n="profiles.emptyTitle">Create your first voice profile</h2><p data-i18n="profiles.emptyDescription">Use a short audio, video, or microphone recording to create a reusable voice.</p><button class="btn btn--primary btn--auto" type="button" data-navigate="cloning"><svg class="icon"><use href="assets/lucide-sprite.svg#mic"></use></svg><span data-i18n="profiles.cloneNew">Clone a new voice</span></button></div><div id="profiles-list" class="profiles-grid hidden" aria-live="polite"></div></div></section>
+      </main>
     </div>
   </div>
 
-  <script type="module" src="js/app.js"></script>
+  <div id="settings-modal" class="modal-overlay" aria-hidden="true"><section class="settings-drawer" role="dialog" aria-modal="true" aria-labelledby="settings-title" tabindex="-1"><header class="modal__header"><div><p class="eyebrow" data-i18n="settings.workspace">Workspace</p><h2 id="settings-title" data-i18n="settings.title">Settings</h2></div><button id="modal-close" class="icon-button" type="button" aria-label="Close settings" data-i18n-aria-label="a11y.closeSettings" data-i18n-tooltip="a11y.closeSettings"><svg class="icon"><use href="assets/lucide-sprite.svg#x"></use></svg></button></header><div class="modal__body"><section class="settings-section" aria-labelledby="appearance-title"><div class="settings-section__heading"><div><h3 id="appearance-title" data-i18n="settings.appearance">Appearance</h3><p data-i18n="settings.appearanceDescription">Choose how VoiceLabs looks on this device.</p></div></div><div class="setting-group"><span class="setting-label" data-i18n="settings.theme">Theme</span><div class="theme-selector" role="group" aria-label="Theme"><button class="theme-btn" type="button" data-theme-value="light"><svg class="icon"><use href="assets/lucide-sprite.svg#sun"></use></svg><span data-i18n="settings.light">Light</span></button><button class="theme-btn" type="button" data-theme-value="dark"><svg class="icon"><use href="assets/lucide-sprite.svg#moon"></use></svg><span data-i18n="settings.dark">Dark</span></button><button class="theme-btn" type="button" data-theme-value="system"><svg class="icon"><use href="assets/lucide-sprite.svg#monitor"></use></svg><span data-i18n="settings.system">System</span></button></div></div><div class="setting-group"><span class="setting-label" data-i18n="settings.interfaceLanguage">Interface language</span><div class="lang-picker" role="radiogroup" aria-label="Interface language"><button class="lang-option" type="button" role="radio" aria-checked="false" data-lang-value="en"><span class="language-code">EN</span><span class="lang-option__name">English</span><svg class="icon lang-option__check"><use href="assets/lucide-sprite.svg#circle-check"></use></svg></button><button class="lang-option" type="button" role="radio" aria-checked="false" data-lang-value="ru"><span class="language-code">RU</span><span class="lang-option__name">Русский</span><svg class="icon lang-option__check"><use href="assets/lucide-sprite.svg#circle-check"></use></svg></button><button class="lang-option" type="button" role="radio" aria-checked="false" data-lang-value="az"><span class="language-code">AZ</span><span class="lang-option__name">Azərbaycan</span><svg class="icon lang-option__check"><use href="assets/lucide-sprite.svg#circle-check"></use></svg></button></div></div></section><section class="settings-section" aria-labelledby="local-title"><div class="settings-section__heading"><div><h3 id="local-title" data-i18n="settings.localTitle">Local workspace</h3><p data-i18n="settings.localDescription">Models and media stay in your local VoiceLabs environment.</p></div></div><div class="privacy-notice privacy-notice--settings"><svg class="icon"><use href="assets/lucide-sprite.svg#shield-check"></use></svg><div><strong data-i18n="privacy.localFirst">Local-first processing</strong><p data-i18n="privacy.localFirstDescription">VoiceLabs uses local Whisper and OmniVoice services configured on this machine.</p></div></div></section></div></section></div>
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"><svg class="icon"><use href="assets/lucide-sprite.svg#circle-check"></use></svg><span data-toast-message></span></div>
+  <div id="live-region" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  <script type="module" src="js/app.js?v=9"></script>
 </body>
 </html>

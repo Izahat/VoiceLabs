@@ -195,6 +195,10 @@ class PersistenceService:
         async with self.session_factory() as session:
             return await VoiceProfileRepository(session).get(profile_id)
 
+    async def list_voice_profiles(self, user_id: str, limit: int = 50) -> list[VoiceProfile]:
+        async with self.session_factory() as session:
+            return await VoiceProfileRepository(session).list_for_user(user_id, limit=limit)
+
     @staticmethod
     def _asset_to_dto(asset: Asset) -> PersistedAsset:
         return PersistedAsset(

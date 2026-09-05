@@ -1,80 +1,41 @@
-/* ═══════════════════════════════════════════════════════════
-   VoiceLabs — Tabs & Mode Switcher
-   ═══════════════════════════════════════════════════════════ */
-
-.tabs {
-  display: flex;
-  gap: 4px;
-  background: var(--bg-secondary);
-  border-radius: var(--radius);
-  padding: 4px;
-  margin-bottom: 28px;
-}
-
-.tab {
-  flex: 1;
-  padding: 10px 20px;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.tab:hover { color: var(--text-heading); }
-
-.tab.active {
-  background: var(--surface);
-  color: var(--text-heading);
-  box-shadow: var(--shadow-sm);
-}
-
-.tab-icon { font-size: 14px; }
-
+.main { grid-column: 2; width: 100%; max-width: var(--content-max); margin: 0 auto; padding: clamp(1.75rem, 3vw, 2.5rem); }
 .tab-content { display: none; }
-.tab-content.active { display: block; }
+.tab-content.active { display: block; animation: page-enter 180ms ease-out; }
+@keyframes page-enter { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-.mode-switcher {
-  display: flex;
-  gap: 4px;
-  background: var(--bg-secondary);
-  border-radius: var(--radius);
-  padding: 4px;
-  margin-bottom: 20px;
-}
+.page-header { min-height: 74px; display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-6); margin-bottom: var(--space-6); }
+.page-header h1 { color: var(--color-text); font-size: var(--text-2xl); line-height: 1.14; letter-spacing: -0.035em; font-weight: 690; }
+.page-header p { max-width: 52rem; margin-top: var(--space-2); color: var(--color-text-muted); font-size: var(--text-base); }
+.page-header--actions { align-items: center; }
 
-.mode-btn {
-  flex: 1;
-  padding: 10px 16px;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-family: var(--font);
-}
+.workspace-layout { display: grid; grid-template-columns: minmax(330px, 0.84fr) minmax(520px, 1.48fr); gap: var(--space-5); align-items: stretch; }
+.workspace-layout--clone { grid-template-columns: minmax(390px, 0.95fr) minmax(520px, 1.45fr); }
+.workspace-layout--transcription { grid-template-columns: minmax(330px, 0.78fr) minmax(560px, 1.55fr); }
 
-.mode-btn:hover { color: var(--text-heading); }
+.phase-stepper { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin: 0 0 var(--space-6); padding: 0 0 var(--space-5); list-style: none; border-bottom: 1px solid var(--color-border); }
+.phase-stepper::before { content: ""; position: absolute; top: 17px; left: 2rem; right: 2rem; height: 1px; background: var(--color-border); }
+.phase-step { position: relative; z-index: 1; display: flex; align-items: center; gap: var(--space-2); color: var(--color-text-subtle); font-size: var(--text-sm); }
+.phase-step > span { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid var(--color-border-strong); border-radius: 50%; background: var(--color-surface); font-variant-numeric: tabular-nums; }
+.phase-step strong { font-weight: 570; background: var(--color-surface); padding-right: var(--space-2); }
+.phase-step.active { color: var(--color-text); }
+.phase-step.active > span { border-color: var(--color-accent); background: var(--color-accent-strong); color: #fff; }
+.phase-step.done > span { border-color: var(--color-success); background: var(--color-success-soft); color: var(--color-success); }
 
-.mode-btn.active {
-  background: var(--surface);
-  color: var(--text-heading);
-  box-shadow: var(--shadow-sm);
-}
+.phase-section + .phase-section { margin-top: var(--space-6); padding-top: var(--space-6); border-top: 1px solid var(--color-border); }
+.phase-section--locked { opacity: 0.68; }
+.phase-section--locked fieldset { pointer-events: none; }
+.phase-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-4); }
+.phase-heading h3 { display: flex; align-items: center; gap: var(--space-2); color: var(--color-text); font-size: var(--text-base); font-weight: 630; }
+.phase-heading p { margin-top: var(--space-1); color: var(--color-text-subtle); font-size: var(--text-xs); }
+.phase-number { width: 28px; height: 28px; display: inline-grid; place-items: center; border: 1px solid var(--color-border-strong); border-radius: 50%; }
 
-.clone-mode { display: none; }
-.clone-mode.active { display: block; }
+.source-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-1); margin: var(--space-4) 0; padding: var(--space-1); background: var(--color-bg-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.source-tab { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; color: var(--color-text-muted); font-weight: 560; cursor: pointer; }
+.source-tab:hover { color: var(--color-text); }
+.source-tab.active { background: var(--color-accent-strong); color: #fff; box-shadow: var(--shadow-sm); }
+.source-panel { margin-bottom: var(--space-5); }
+
+.filter-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); padding-bottom: var(--space-5); border-bottom: 1px solid var(--color-border); }
+.filter-chip { min-height: 38px; padding: 0 var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-pill); background: var(--color-surface); color: var(--color-text-muted); font-size: var(--text-sm); font-weight: 560; cursor: pointer; }
+.filter-chip:hover { color: var(--color-text); border-color: var(--color-border-strong); }
+.filter-chip.active { color: var(--color-accent); background: var(--color-accent-soft); border-color: color-mix(in srgb, var(--color-accent) 38%, var(--color-border)); }

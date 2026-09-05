@@ -60,14 +60,16 @@ class VoiceService:
         stored_ref = voice_dir / "reference.wav"
         shutil.copy2(clean_audio_path, stored_ref)
 
+        # Создание профиля не должно запускать общий Faster Whisper.
+        # Whisper относится к отдельному сценарию транскрипции. OmniVoice
+        # получает аудиоссылку без текста-образца; пустая строка намеренно
+        # отключает его необязательную автоматическую ASR-транскрипцию.
         ref_text = ""
-        try:
-            result = await self._transcriber.transcribe(stored_ref)
-            ref_text = " ".join(segment.text for segment in result.segments)
-        except Exception as exc:
-            logger.warning("Reference transcription failed: %s", exc)
-
         (voice_dir / "ref_text.txt").write_text(ref_text, encoding="utf-8")
+        logger.info(
+            "Voice profile prepared without ASR reference transcription: %s",
+            voice_id,
+        )
         logger.info("Voice cloned: %s -> %s", ref_audio_path.name, voice_id)
         return voice_id
 
@@ -117,5 +119,5 @@ class VoiceService:
 
     @property
     def transcriber(self) -> ITranscriber:
-        """Return the shared ASR adapter used by cloning and transcription."""
+        """Return the shared ASR adapter used by the transcription workflow."""
         return self._transcriber

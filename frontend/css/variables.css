@@ -1,50 +1,113 @@
-/* ═══════════════════════════════════════════════════════════
-   VoiceLabs — CSS Variables & Themes
-   ═══════════════════════════════════════════════════════════ */
-
-/* ── Light Theme ── */
+/* VoiceLabs semantic design tokens — source: design.md */
 :root {
-  --bg: #ffffff;
-  --bg-secondary: #f5f5f7;
-  --surface: #ffffff;
-  --surface-hover: #fafafa;
-  --border: #e5e5e7;
-  --border-hover: #d1d1d6;
-  --text: #6e6e73;
-  --text-heading: #1d1d1f;
-  --text-secondary: #86868b;
-  --accent: #7c3aed;
-  --accent-hover: #6d28d9;
-  --accent-light: rgba(124, 58, 237, 0.08);
-  --accent-light-hover: rgba(124, 58, 237, 0.14);
-  --success: #22c55e;
-  --error: #ef4444;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-  --shadow: 0 2px 8px rgba(0,0,0,0.06);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
-  --radius: 14px;
-  --radius-sm: 10px;
-  --radius-xs: 6px;
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --header-height: 64px;
+  color-scheme: light;
+  --color-bg: #f6f7f9;
+  --color-bg-subtle: #eef0f4;
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-surface-hover: #f2f0fa;
+  --color-border: #e1e5eb;
+  --color-border-strong: #c8ced8;
+  --color-text: #171a20;
+  --color-text-muted: #5f6978;
+  --color-text-subtle: #7b8492;
+  --color-accent: #6e50d8;
+  --color-accent-strong: #6848d7;
+  --color-accent-hover: #5738c5;
+  --color-accent-soft: rgba(110, 80, 216, 0.10);
+  --color-focus: #5c3fc4;
+  --color-success: #168a5a;
+  --color-success-soft: rgba(22, 138, 90, 0.10);
+  --color-warning: #a86c00;
+  --color-warning-soft: rgba(168, 108, 0, 0.10);
+  --color-danger: #c73e51;
+  --color-danger-soft: rgba(199, 62, 81, 0.09);
+  --color-info: #246db5;
+  --color-info-soft: rgba(36, 109, 181, 0.10);
+  --color-overlay: rgba(16, 20, 27, 0.42);
+
+  --font-sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.25rem;
+  --text-2xl: clamp(1.75rem, 2.2vw, 2.25rem);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --radius-xs: 0.375rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(20, 24, 32, 0.05);
+  --shadow-md: 0 8px 24px rgba(20, 24, 32, 0.08);
+  --shadow-lg: 0 24px 70px rgba(20, 24, 32, 0.15);
+  --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-focus);
+
+  --sidebar-width: 232px;
+  --header-height: 76px;
+  --content-max: 1500px;
+  --transition-fast: 140ms ease;
+  --transition-panel: 220ms ease;
+
+  /* Compatibility aliases retained for existing modules during the refactor. */
+  --bg: var(--color-bg);
+  --bg-secondary: var(--color-bg-subtle);
+  --surface: var(--color-surface);
+  --surface-hover: var(--color-surface-hover);
+  --border: var(--color-border);
+  --border-hover: var(--color-border-strong);
+  --text: var(--color-text-muted);
+  --text-heading: var(--color-text);
+  --text-secondary: var(--color-text-subtle);
+  --accent: var(--color-accent-strong);
+  --accent-hover: var(--color-accent-hover);
+  --accent-light: var(--color-accent-soft);
+  --success: var(--color-success);
+  --error: var(--color-danger);
+  --radius: var(--radius-lg);
 }
 
-/* ── Dark Theme ── */
 [data-theme="dark"] {
-  --bg: #0a0a0b;
-  --bg-secondary: #111113;
-  --surface: #18181b;
-  --surface-hover: #1f1f23;
-  --border: #2a2a2e;
-  --border-hover: #3a3a3f;
-  --text: #a1a1aa;
-  --text-heading: #fafafa;
-  --text-secondary: #71717a;
-  --accent: #a78bfa;
-  --accent-hover: #c4b5fd;
-  --accent-light: rgba(167, 139, 250, 0.10);
-  --accent-light-hover: rgba(167, 139, 250, 0.18);
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-  --shadow: 0 2px 12px rgba(0,0,0,0.4);
-  --shadow-lg: 0 8px 40px rgba(0,0,0,0.6);
+  color-scheme: dark;
+  --color-bg: #0b0d10;
+  --color-bg-subtle: #101318;
+  --color-surface: #171b21;
+  --color-surface-raised: #1d232b;
+  --color-surface-hover: #242b35;
+  --color-border: #2a323d;
+  --color-border-strong: #3a4552;
+  --color-text: #f5f7fa;
+  --color-text-muted: #b3bbc7;
+  --color-text-subtle: #808a99;
+  --color-accent: #a994ff;
+  --color-accent-strong: #805fe8;
+  --color-accent-hover: #9072f2;
+  --color-accent-soft: rgba(169, 148, 255, 0.12);
+  --color-focus: #c9bcff;
+  --color-success: #36d399;
+  --color-success-soft: rgba(54, 211, 153, 0.11);
+  --color-warning: #f5c451;
+  --color-warning-soft: rgba(245, 196, 81, 0.11);
+  --color-danger: #f27786;
+  --color-danger-soft: rgba(242, 119, 134, 0.10);
+  --color-info: #69a8f9;
+  --color-info-soft: rgba(105, 168, 249, 0.10);
+  --color-overlay: rgba(0, 0, 0, 0.68);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.28);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.28);
+  --shadow-lg: 0 30px 90px rgba(0, 0, 0, 0.52);
 }

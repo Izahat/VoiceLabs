@@ -1,314 +1,211 @@
-/**
- * Transcription Tab — handles file upload, URL input, and transcription display.
- */
-import { API_BASE, getUserHeaders } from './api.js';
-import { showError, clearError } from './jobs.js';
+import { transcribeUpload, transcribeUrl } from './api.js';
+import { translate } from './language.js';
+import { setupFileDropzone } from './components/dropzone.js';
+import { loadAudioPlayer, resetAudioPlayer } from './components/audio-player.js?v=3';
+import { announce, byId, clearNotice, formatBytes, formatDuration, getMediaDuration, setButtonBusy, setReadyState, showNotice, showOnly, showToast } from './ui.js';
 
-let transcribeFile = null;
-let transcribeBarInterval = null;
+let sourceFile = null;
+let sourceDuration = null;
+let sourceMode = 'file';
+let lastSource = null;
+let sourcePreviewUrl = null;
 
-// ── Init ──────────────────────────────────────────────────────────────────
+const resultIds = ['transcribe-empty', 'transcribe-progress', 'transcribe-preview-error', 'transcribe-result'];
+
+function validMedia(file) {
+  const extension = file.name.split('.').pop()?.toLowerCase();
+  return file.type.startsWith('audio/') || file.type.startsWith('video/') || ['wav', 'mp3', 'm4a', 'ogg', 'webm', 'mp4', 'mov', 'avi', 'mkv'].includes(extension);
+}
+
+function activeSource() {
+  return sourceMode === 'file' ? sourceFile : byId('transcribe-url')?.value.trim();
+}
+
+function checkReady() {
+  setReadyState(byId('start-transcribe-btn'), Boolean(activeSource()));
+}
+
+function showPreview(id) {
+  showOnly(resultIds, id);
+}
+
+function updateFileMeta() {
+  if (!sourceFile) return;
+  byId('transcribe-filesize').textContent = formatBytes(sourceFile.size);
+  byId('transcribe-fileduration').textContent = sourceDuration ? ` · ${formatDuration(sourceDuration)}` : '';
+}
+
+function setMode(mode) {
+  sourceMode = mode;
+  const fileActive = mode === 'file';
+  byId('transcribe-mode-file').classList.toggle('active', fileActive);
+  byId('transcribe-mode-url').classList.toggle('active', !fileActive);
+  byId('transcribe-mode-file').setAttribute('aria-selected', String(fileActive));
+  byId('transcribe-mode-url').setAttribute('aria-selected', String(!fileActive));
+  byId('transcribe-file-panel').classList.toggle('hidden', !fileActive);
+  byId('transcribe-url-panel').classList.toggle('hidden', fileActive);
+  checkReady();
+}
+
+function handleFile(file) {
+  if (!file) return;
+  if (file.size > 500 * 1024 * 1024) {
+    showNotice('transcribe-error', translate('errors.fileTooLarge'));
+    return;
+  }
+  if (!validMedia(file)) {
+    showNotice('transcribe-error', translate('errors.invalidMedia'));
+    return;
+  }
+  sourceFile = file;
+  sourceDuration = null;
+  if (sourcePreviewUrl) URL.revokeObjectURL(sourcePreviewUrl);
+  sourcePreviewUrl = URL.createObjectURL(file);
+  loadAudioPlayer('transcribe-audio-preview', sourcePreviewUrl);
+  byId('transcribe-filename').textContent = file.name;
+  byId('transcribe-filesize').textContent = formatBytes(file.size);
+  byId('transcribe-fileduration').textContent = '';
+  byId('transcribe-file-icon-use')?.setAttribute('href', `assets/lucide-sprite.svg#${file.type.startsWith('video/') ? 'file-video' : 'file-audio'}`);
+  byId('transcribe-dropzone').classList.add('hidden');
+  byId('transcribe-file-info').classList.remove('hidden');
+  clearNotice('transcribe-error');
+  setMode('file');
+  getMediaDuration(file).then(duration => {
+    if (sourceFile !== file) return;
+    sourceDuration = duration;
+    updateFileMeta();
+  });
+  checkReady();
+  announce(translate('status.referenceSelected'));
+}
+
+function clearFile() {
+  sourceFile = null;
+  sourceDuration = null;
+  if (sourcePreviewUrl) URL.revokeObjectURL(sourcePreviewUrl);
+  sourcePreviewUrl = null;
+  byId('transcribe-file-input').value = '';
+  byId('transcribe-file-info').classList.add('hidden');
+  byId('transcribe-dropzone').classList.remove('hidden');
+  resetAudioPlayer('transcribe-audio-preview');
+  checkReady();
+}
+
+export function handleTranscriptionFile(file) {
+  handleFile(file);
+}
+
+function validUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch { return false; }
+}
 
 export function setupTranscribeListeners() {
-  setupDropzone();
-  setupURLInput();
-  setupButtons();
+  setupFileDropzone({
+    dropzone: byId('transcribe-dropzone'), input: byId('transcribe-file-input'),
+    maxSize: 500 * 1024 * 1024, validate: file => validMedia(file) ? '' : translate('errors.invalidMedia'),
+    onFile: handleFile, onError: message => showNotice('transcribe-error', message),
+  });
+  byId('transcribe-mode-file')?.addEventListener('click', () => setMode('file'));
+  byId('transcribe-mode-url')?.addEventListener('click', () => setMode('url'));
+  byId('transcribe-replace')?.addEventListener('click', () => byId('transcribe-file-input').click());
+  byId('transcribe-remove')?.addEventListener('click', clearFile);
+  byId('transcribe-url')?.addEventListener('input', () => {
+    clearNotice('transcribe-error');
+    checkReady();
+  });
+  byId('start-transcribe-btn')?.addEventListener('click', startTranscription);
+  byId('transcribe-retry-btn')?.addEventListener('click', startTranscription);
+  byId('transcribe-preview-retry-btn')?.addEventListener('click', startTranscription);
+  byId('transcribe-copy-btn')?.addEventListener('click', copyTranscription);
+  byId('transcribe-new-btn')?.addEventListener('click', resetTranscription);
+  setMode('file');
 }
-
-function setupDropzone() {
-  const dropzone = document.getElementById('transcribe-dropzone');
-  const fileInput = document.getElementById('transcribe-file-input');
-  const fileInfo = document.getElementById('transcribe-file-info');
-  const filename = document.getElementById('transcribe-filename');
-  const filesize = document.getElementById('transcribe-filesize');
-  const removeBtn = document.getElementById('transcribe-remove');
-
-  if (!dropzone) return;
-
-  dropzone.addEventListener('click', () => fileInput.click());
-
-  dropzone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropzone.classList.add('dropzone--drag');
-  });
-
-  dropzone.addEventListener('dragleave', () => {
-    dropzone.classList.remove('dropzone--drag');
-  });
-
-  dropzone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropzone.classList.remove('dropzone--drag');
-    const file = e.dataTransfer.files[0];
-    if (file) handleFileSelect(file);
-  });
-
-  fileInput.addEventListener('change', () => {
-    if (fileInput.files[0]) handleFileSelect(fileInput.files[0]);
-  });
-
-  removeBtn?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    clearTranscribeFile();
-  });
-
-  function handleFileSelect(file) {
-    // Only audio/video
-    if (!file.type.startsWith('audio/') && !file.type.startsWith('video/')) {
-      showError('transcribe-error', 'Please select an audio or video file');
-      return;
-    }
-
-    transcribeFile = file;
-    filename.textContent = file.name;
-    filesize.textContent = formatFileSize(file.size);
-    fileInfo.classList.remove('hidden');
-    dropzone.classList.add('hidden');
-
-    checkTranscribeReady();
-    clearError('transcribe-error');
-  }
-}
-
-function setupURLInput() {
-  const urlInput = document.getElementById('transcribe-url');
-  const fileInput = document.getElementById('transcribe-file-input');
-
-  urlInput?.addEventListener('input', () => {
-    // Clear file if URL is typed
-    if (urlInput.value.trim()) {
-      clearTranscribeFile();
-    }
-    checkTranscribeReady();
-  });
-}
-
-function setupButtons() {
-  const startBtn = document.getElementById('start-transcribe-btn');
-  const copyBtn = document.getElementById('transcribe-copy-btn');
-  const newBtn = document.getElementById('transcribe-new-btn');
-
-  startBtn?.addEventListener('click', startTranscription);
-  copyBtn?.addEventListener('click', copyTranscription);
-  newBtn?.addEventListener('click', resetTranscribe);
-}
-
-function checkTranscribeReady() {
-  const url = document.getElementById('transcribe-url')?.value?.trim();
-  const startBtn = document.getElementById('start-transcribe-btn');
-  startBtn.disabled = !transcribeFile && !url;
-}
-
-// ── Transcription ─────────────────────────────────────────────────────────
 
 async function startTranscription() {
-  clearError('transcribe-error');
-  showTranscribeProgress();
-
-  const url = document.getElementById('transcribe-url')?.value?.trim();
-  const language = document.getElementById('transcribe-language')?.value || null;
-  // The API keeps this field for forward compatibility, but diarization is
-  // intentionally disabled until a production model is selected.
-  const enableDiarization = false;
-
+  const source = activeSource();
+  if (!source) return;
+  if (sourceMode === 'url' && !validUrl(source)) {
+    showNotice('transcribe-error', translate('errors.invalidUrl'));
+    return;
+  }
+  lastSource = source;
+  clearNotice('transcribe-error');
+  setButtonBusy(byId('start-transcribe-btn'), true, { busyText: translate('transcription.starting') });
+  showPreview('transcribe-progress');
+  byId('transcribe-status').textContent = sourceMode === 'url' ? translate('transcription.processingUrlDescription') : translate('transcription.processingDescription');
+  announce(translate('transcription.processingTitle'));
   try {
-    let result;
-
-    if (url) {
-      // URL transcription
-      const formData = new FormData();
-      formData.append('url', url);
-      if (language) formData.append('language', language);
-      formData.append('enable_diarization', String(enableDiarization));
-
-      const res = await fetch(`${API_BASE}/transcription/transcribe/url`, {
-        method: 'POST',
-        headers: getUserHeaders(),
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
-        throw new Error(err.detail || `HTTP ${res.status}`);
-      }
-
-      result = await res.json();
-    } else if (transcribeFile) {
-      // File transcription
-      const formData = new FormData();
-      formData.append('file', transcribeFile);
-      if (language) formData.append('language', language);
-      formData.append('enable_diarization', String(enableDiarization));
-
-      const res = await fetch(`${API_BASE}/transcription/transcribe`, {
-        method: 'POST',
-        headers: getUserHeaders(),
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
-        throw new Error(err.detail || `HTTP ${res.status}`);
-      }
-
-      result = await res.json();
-    } else {
-      throw new Error('Please upload a file or enter a URL');
-    }
-
-    hideTranscribeProgress();
-    showTranscribeResult(result);
-
-  } catch (err) {
-    hideTranscribeProgress();
-    showError('transcribe-error', err.message);
+    const language = byId('transcribe-language').value || null;
+    const result = sourceMode === 'url' ? await transcribeUrl({ url: source, language }) : await transcribeUpload({ file: source, language });
+    showResult(result);
+    document.dispatchEvent(new CustomEvent('voicelabs:datachange'));
+  } catch (error) {
+    byId('transcribe-preview-error-message').textContent = error.message;
+    showNotice('transcribe-error', error.message);
+    showPreview('transcribe-preview-error');
+    announce(error.message);
+  } finally {
+    setButtonBusy(byId('start-transcribe-btn'), false, { idleText: translate('transcription.start') });
+    checkReady();
   }
 }
 
-// ── UI Updates ─────────────────────────────────────────────────────────────
-
-function showTranscribeProgress() {
-  document.getElementById('transcribe-progress')?.classList.remove('hidden');
-  document.getElementById('transcribe-result')?.classList.add('hidden');
-  document.getElementById('start-transcribe-btn').disabled = true;
-
-  // Animate progress bar
-  let progress = 0;
-  const status = document.getElementById('transcribe-status');
-  transcribeBarInterval = setInterval(() => {
-    progress += 5;
-    if (progress > 90) progress = 90;
-    document.getElementById('transcribe-bar').style.width = `${progress}%`;
-    if (progress < 30) status.textContent = 'Extracting audio...';
-    else if (progress < 60) status.textContent = 'Transcribing...';
-    else if (progress < 90) status.textContent = 'Analyzing speakers...';
-  }, 500);
+function showResult(result) {
+  byId('transcribe-language-badge').textContent = (result.language || byId('transcribe-language').value || '—').toUpperCase();
+  byId('transcribe-duration').textContent = formatDuration(Number(result.duration));
+  byId('transcribe-source-name').textContent = sourceMode === 'file' ? sourceFile?.name || '—' : (() => { try { return new URL(lastSource).hostname; } catch { return lastSource || '—'; } })();
+  byId('transcribe-speakers-count').classList.add('hidden');
+  byId('transcribe-text').textContent = result.full_text || result.text || '';
+  const segments = Array.isArray(result.segments) ? result.segments : [];
+  byId('transcribe-segments').replaceChildren(...segments.map(segment => {
+    const item = document.createElement('article');
+    item.className = 'segment-item';
+    const time = document.createElement('time');
+    time.className = 'segment-time';
+    time.textContent = `${formatTimestamp(segment.start)} – ${formatTimestamp(segment.end)}`;
+    const text = document.createElement('p');
+    text.className = 'segment-text';
+    text.textContent = segment.text || '';
+    item.append(time, text);
+    return item;
+  }));
+  clearNotice('transcribe-error');
+  byId('transcribe-copy-feedback').classList.add('hidden');
+  showPreview('transcribe-result');
+  announce(translate('status.transcriptionComplete'));
 }
 
-function hideTranscribeProgress() {
-  clearInterval(transcribeBarInterval);
-  document.getElementById('transcribe-progress')?.classList.add('hidden');
-  document.getElementById('transcribe-bar').style.width = '0%';
-  document.getElementById('start-transcribe-btn').disabled = false;
+function formatTimestamp(seconds) {
+  if (!Number.isFinite(Number(seconds))) return '—:—';
+  const total = Math.max(0, Math.floor(Number(seconds)));
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
 }
 
-function showTranscribeResult(result) {
-  const resultSection = document.getElementById('transcribe-result');
-  const languageBadge = document.getElementById('transcribe-language-badge');
-  const durationEl = document.getElementById('transcribe-duration');
-  const speakersCount = document.getElementById('transcribe-speakers-count');
-  const fullTextEl = document.getElementById('transcribe-text');
-  const segmentsEl = document.getElementById('transcribe-segments');
-
-  // Info
-  languageBadge.textContent = (result.language || 'EN').toUpperCase();
-  if (result.duration) {
-    durationEl.textContent = formatDuration(result.duration);
+async function copyTranscription() {
+  const text = byId('transcribe-text').textContent.trim();
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const range = document.createRange();
+    range.selectNodeContents(byId('transcribe-text'));
+    const selection = window.getSelection();
+    selection.removeAllRanges(); selection.addRange(range);
+    document.execCommand('copy'); selection.removeAllRanges();
   }
-
-  // Speakers count
-  if (result.speakers && result.speakers.length > 0) {
-    const uniqueSpeakers = new Set(result.speakers.map(s => s.speaker));
-    speakersCount.textContent = `${uniqueSpeakers.size} speaker(s)`;
-    speakersCount.classList.remove('hidden');
-  } else {
-    speakersCount.classList.add('hidden');
-  }
-
-  // Full text
-  fullTextEl.textContent = result.full_text || '';
-
-  // Segments with speakers
-  segmentsEl.innerHTML = '';
-  const segments = result.segments || [];
-  const speakerColors = getSpeakerColors();
-
-  for (const seg of segments) {
-    const div = document.createElement('div');
-    div.className = 'segment-item';
-
-    const speaker = seg.speaker || 'UNKNOWN';
-    const colorIndex = parseInt(speaker.replace(/\D/g, '') || '0');
-
-    div.innerHTML = `
-      <div class="segment-header">
-        <span class="segment-speaker" style="background: ${speakerColors[colorIndex % speakerColors.length]}">
-          ${speaker}
-        </span>
-        <span class="segment-time">${formatTime(seg.start)} - ${formatTime(seg.end)}</span>
-      </div>
-      <p class="segment-text">${escapeHtml(seg.text)}</p>
-    `;
-    segmentsEl.appendChild(div);
-  }
-
-  resultSection.classList.remove('hidden');
-
-  // Complete progress
-  document.getElementById('transcribe-bar').style.width = '100%';
-  document.getElementById('transcribe-status').textContent = 'Complete!';
-  setTimeout(() => {
-    document.getElementById('transcribe-progress')?.classList.add('hidden');
-  }, 1000);
+  byId('transcribe-copy-feedback').classList.remove('hidden');
+  showToast(translate('transcription.copied'));
 }
 
-function copyTranscription() {
-  const text = document.getElementById('transcribe-text')?.textContent;
-  if (text) {
-    navigator.clipboard.writeText(text);
-    // Brief visual feedback
-    const btn = document.getElementById('transcribe-copy-btn');
-    const original = btn.innerHTML;
-    btn.innerHTML = '<span>✓</span><span>Copied!</span>';
-    setTimeout(() => { btn.innerHTML = original; }, 1500);
-  }
-}
-
-function resetTranscribe() {
-  clearTranscribeFile();
-  document.getElementById('transcribe-url').value = '';
-  document.getElementById('transcribe-result')?.classList.add('hidden');
-  clearError('transcribe-error');
-  checkTranscribeReady();
-}
-
-function clearTranscribeFile() {
-  transcribeFile = null;
-  document.getElementById('transcribe-file-input').value = '';
-  document.getElementById('transcribe-file-info')?.classList.add('hidden');
-  document.getElementById('transcribe-dropzone')?.classList.remove('hidden');
-}
-
-// ── Helpers ────────────────────────────────────────────────────────────────
-
-function formatFileSize(bytes) {
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-}
-
-function formatDuration(seconds) {
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}m ${secs}s`;
-}
-
-function formatTime(seconds) {
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
-}
-
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-function getSpeakerColors() {
-  return [
-    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
-    '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F',
-    '#BB8FCE', '#85C1E9'
-  ];
+function resetTranscription() {
+  clearFile();
+  byId('transcribe-url').value = '';
+  byId('transcribe-language').value = '';
+  clearNotice('transcribe-error');
+  showPreview('transcribe-empty');
+  setMode('file');
+  checkReady();
 }

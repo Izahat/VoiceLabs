@@ -1,30 +1,29 @@
-// Shared application state with getters/setters
-let _videoFile = null;
-let _referenceAudioFile = null;
-let _cloneVideoFile = null;
-let _refAudioFile = null;
-let _jobId = null;
-let _pollInterval = null;
-let _currentLang = localStorage.getItem('ui-lang') || 'en';
-let _currentTheme = localStorage.getItem('ui-theme') || 'system';
-let _currentCloneMode = 'video';
+const supportedLanguages = new Set(['en', 'ru', 'az']);
+const supportedThemes = new Set(['light', 'dark', 'system']);
 
-export const getVideoFile = () => _videoFile;
-export const getReferenceAudioFile = () => _referenceAudioFile;
-export const getCloneVideoFile = () => _cloneVideoFile;
-export const getRefAudioFile = () => _refAudioFile;
-export const getJobId = () => _jobId;
-export const getPollInterval = () => _pollInterval;
-export const getCurrentLang = () => _currentLang;
-export const getCurrentTheme = () => _currentTheme;
-export const getCurrentCloneMode = () => _currentCloneMode;
+let currentLang = localStorage.getItem('ui-lang') || 'en';
+let currentTheme = localStorage.getItem('ui-theme') || 'system';
+let currentPage = window.location.hash.replace('#', '') || 'design';
 
-export function setVideoFile(v) { _videoFile = v; }
-export function setReferenceAudioFile(v) { _referenceAudioFile = v; }
-export function setCloneVideoFile(v) { _cloneVideoFile = v; }
-export function setRefAudioFile(v) { _refAudioFile = v; }
-export function setJobId(v) { _jobId = v; }
-export function setPollInterval(v) { _pollInterval = v; }
-export function setCurrentLang(v) { _currentLang = v; localStorage.setItem('ui-lang', v); }
-export function setCurrentTheme(v) { _currentTheme = v; localStorage.setItem('ui-theme', v); }
-export function setCurrentCloneMode(v) { _currentCloneMode = v; }
+if (!supportedLanguages.has(currentLang)) currentLang = 'en';
+if (!supportedThemes.has(currentTheme)) currentTheme = 'system';
+
+export const getCurrentLang = () => currentLang;
+export const getCurrentTheme = () => currentTheme;
+export const getCurrentPage = () => currentPage;
+
+export function setCurrentLang(value) {
+  if (!supportedLanguages.has(value)) return;
+  currentLang = value;
+  localStorage.setItem('ui-lang', value);
+}
+
+export function setCurrentTheme(value) {
+  if (!supportedThemes.has(value)) return;
+  currentTheme = value;
+  localStorage.setItem('ui-theme', value);
+}
+
+export function setCurrentPage(value) {
+  currentPage = value;
+}

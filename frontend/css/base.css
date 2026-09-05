@@ -1,21 +1,121 @@
-/* ═══════════════════════════════════════════════════════════
-   VoiceLabs — Base & Reset
-   ═══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
 
-*, *::before, ::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html, body {
-  height: 100%;
-  font-family: var(--font);
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  transition: background 0.2s, color 0.2s;
+html {
+  min-width: 320px;
+  min-height: 100%;
+  overflow-x: hidden;
+  background: var(--color-bg);
+  scroll-behavior: smooth;
 }
 
-#app {
+body {
+  position: relative;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color var(--transition-panel), color var(--transition-panel);
 }
+
+body::before {
+  content: "";
+  position: fixed;
+  z-index: 0;
+  inset: -2%;
+  pointer-events: none;
+  background-image: url('../assets/voicelabs-ambient-bg.png');
+  background-position: 50% 100%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0.16;
+  mix-blend-mode: screen;
+  animation: ambient-drift 28s ease-in-out infinite alternate;
+}
+
+.app-shell { position: relative; z-index: 1; }
+
+@keyframes ambient-drift {
+  from { transform: scale(1); background-position: 50% 100%; }
+  to { transform: scale(1.035); background-position: 53% 96%; }
+}
+
+html[data-theme="light"] body::before {
+  opacity: 0.045;
+  mix-blend-mode: multiply;
+  filter: saturate(0.45) brightness(1.8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
+}
+
+button, input, select, textarea { font: inherit; }
+button { color: inherit; }
+a { color: inherit; }
+img, canvas, video { max-width: 100%; }
+h1, h2, h3, h4, p { margin: 0; }
+fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+
+::selection { background: var(--color-accent-soft); color: var(--color-text); }
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  flex: 0 0 auto;
+  display: inline-block;
+  overflow: visible;
+}
+
+.icon--sm { width: 1rem; height: 1rem; }
+.icon--spin { animation: icon-spin 0.9s linear infinite; }
+
+@keyframes icon-spin { to { transform: rotate(360deg); } }
+
+.hidden { display: none !important; }
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.skip-link {
+  position: fixed;
+  left: var(--space-4);
+  top: var(--space-4);
+  z-index: 5000;
+  transform: translateY(-160%);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-strong);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 650;
+}
+
+.skip-link:focus { transform: translateY(0); }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-border-strong); border: 3px solid var(--color-bg); border-radius: var(--radius-pill); }
+
+#vd-result-audio,
+#result-audio,
+#ref-audio-preview { display: none; }

@@ -6,6 +6,7 @@ import json
 import uuid
 from pathlib import Path
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,8 +26,22 @@ class UserRepository:
 
         user = User(id=uuid.uuid4().hex, external_id=external_id)
         self.session.add(user)
-        await self.session.flush()
-        return user
+        try:
+            await self.session.flush()
+            return user
+        except IntegrityError:
+            # Two frontend requests can initialize the same external user at
+            # the same time (for example jobs and voice profiles on startup).
+            # Let the database arbitrate the unique key, then reuse the row
+            # committed by the competing request.
+            await self.session.rollback()
+            result = await self.session.execute(
+                select(User).where(User.external_id == external_id)
+            )
+            existing = result.scalar_one_or_none()
+            if existing is None:
+                raise
+            return existing
 
 
 class JobRepository:
@@ -157,3 +172,12 @@ class VoiceProfileRepository:
 
     async def get(self, profile_id: str) -> VoiceProfile | None:
         return await self.session.get(VoiceProfile, profile_id)
+
+    async def list_for_user(self, user_id: str, limit: int = 50) -> list[VoiceProfile]:
+        result = await self.session.execute(
+            select(VoiceProfile)
+            .where(VoiceProfile.user_id == user_id)
+            .order_by(desc(VoiceProfile.created_at))
+            .limit(limit)
+        )
+        return list(result.scalars().all())

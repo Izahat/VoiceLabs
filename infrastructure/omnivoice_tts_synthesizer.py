@@ -151,6 +151,9 @@ class OmniVoiceTTSSynthesizer(ITTSSynthesizer):
         output_path: Path,
         language: str | None = None,
     ) -> Path:
+        # Не передаём None: официальный OmniVoice тогда сам загрузит
+        # дополнительную ASR-модель для расшифровки reference-аудио.
+        # Пустая строка сохраняет клонирование по аудио и не запускает ASR.
         return await self._save_generated(
             output_path,
             text=text,

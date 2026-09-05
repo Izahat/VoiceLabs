@@ -1,39 +1,40 @@
-export function setupDropzone(dropzoneEl, inputEl, fileInfoHandlers, onFileSelected, opts = {}) {
-  const { accept = '*', maxSize = 500 * 1024 * 1024 } = opts;
+export function setupFileDropzone({
+  dropzone,
+  input,
+  onFile,
+  onError,
+  validate,
+  maxSize = 500 * 1024 * 1024,
+}) {
+  if (!dropzone || !input || dropzone.dataset.setup === 'true') return;
+  dropzone.dataset.setup = 'true';
 
-  function handleFile(file) {
+  const acceptFile = file => {
+    if (!file) return;
     if (file.size > maxSize) {
-      alert(`File too large. Max ${maxSize / 1024 / 1024}MB`);
+      onError?.(`File is too large. Maximum size is ${Math.round(maxSize / 1024 / 1024)} MB.`);
       return;
     }
-    onFileSelected(file);
-    const sizeStr = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
-    if (fileInfoHandlers.show) fileInfoHandlers.show(file.name, sizeStr);
-  }
-
-  dropzoneEl.addEventListener('click', () => inputEl.click());
-
-  dropzoneEl.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropzoneEl.classList.add('dragover');
-  });
-
-  dropzoneEl.addEventListener('dragleave', () => {
-    dropzoneEl.classList.remove('dragover');
-  });
-
-  dropzoneEl.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropzoneEl.classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
-    if (file) handleFile(file);
-  });
-
-  inputEl.addEventListener('change', () => {
-    if (inputEl.files[0]) {
-      handleFile(inputEl.files[0]);
+    const validationMessage = validate?.(file);
+    if (validationMessage) {
+      onError?.(validationMessage);
+      return;
     }
-  });
+    onFile(file);
+  };
 
-  return { handleFile };
+  dropzone.addEventListener('click', () => input.click());
+  dropzone.addEventListener('dragover', event => {
+    event.preventDefault();
+    dropzone.classList.add('dragover');
+  });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+  dropzone.addEventListener('drop', event => {
+    event.preventDefault();
+    dropzone.classList.remove('dragover');
+    acceptFile(event.dataTransfer?.files?.[0]);
+  });
+  input.addEventListener('change', () => acceptFile(input.files?.[0]));
+
+  return { acceptFile };
 }

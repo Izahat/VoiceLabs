@@ -385,7 +385,8 @@ class DubbingOrchestrator:
         """
         Clone a voice from reference audio and return a voice_id.
         The cloned voice is stored for later synthesis.
-        Also auto-transcribes reference audio for OmniVoice API requirement.
+        The reference is stored without running ASR. Whisper is reserved for
+        the explicit transcription workflow.
         If voice separation is enabled, extracts clean vocals first.
         """
         import uuid
@@ -411,16 +412,9 @@ class DubbingOrchestrator:
         stored_ref = voice_dir / "reference.wav"
         shutil.copy2(clean_audio_path, stored_ref)
 
-        # Auto-transcribe reference audio for OmniVoice API (required field ref_text)
+        # Keep the optional reference text empty. Passing an empty string to
+        # OmniVoice prevents its optional internal ASR model from starting.
         ref_text = ""
-        try:
-            result = await self._transcriber.transcribe(stored_ref)
-            ref_text = " ".join(seg.text for seg in result.segments)
-            logger.info("Reference audio transcribed: %d chars", len(ref_text))
-        except Exception as e:
-            logger.warning("Failed to transcribe reference audio: %s", e)
-
-        # Store ref_text for later use in synthesis
         ref_text_path = voice_dir / "ref_text.txt"
         ref_text_path.write_text(ref_text)
 
@@ -444,7 +438,7 @@ class DubbingOrchestrator:
 
         ref_audio_path = voice_dir / "reference.wav"
         ref_text_path = voice_dir / "ref_text.txt"
-        ref_text = ref_text_path.read_text() if ref_text_path.exists() else "a voice"
+        ref_text = ref_text_path.read_text() if ref_text_path.exists() else ""
 
         # OmniVoice returns WAV bytes; keep the extension and MIME type honest.
         output_path = self._output_dir / f"tts_{voice_id}.wav"
