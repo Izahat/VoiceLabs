@@ -376,4 +376,4 @@ Before exposing the service outside a trusted machine, add real authentication, 
 
 ## License
 
-Private project.
+VoiceLabs source code is licensed under the [MIT License](LICENSE). The license applies to this repository's code and documentation. Third-party dependencies and model weights remain subject to their own licenses and terms.
